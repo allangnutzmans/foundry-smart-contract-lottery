@@ -81,7 +81,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
   function enterRaffle() external payable {
     // require(msg.value >= i_entranceFee, "Not enough ETH sent!"); - Not very Gas efficient due to the string storing
     //  require(msg.value >= i_entranceFee, SendMoreToEnterRaffle()); - Just works in later versions of solidity / specific compiler version
-    if (msg.value >= i_entranceFee) {
+    if (msg.value < i_entranceFee) {
       revert Raffle__SendMoreToEnterRaffle();
     }
     if (s_raffleState != RaffleState.OPEN){
@@ -167,5 +167,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
    */
   function getEntranceFee() external view returns (uint256) {
     return i_entranceFee;
+  }
+
+  function getRflleState() external view returns (RaffleState) {
+    return s_raffleState;
+  }
+
+  function getPlayer(uint256 index) external view returns (address) {
+    return s_players[index];
   }
 }
