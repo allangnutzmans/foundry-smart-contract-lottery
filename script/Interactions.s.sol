@@ -35,7 +35,7 @@ contract FundSubscription is Script, CodeConstants {
     console2.log('Funding subscription with id: %s', subscriptionId);
     console2.log('Using vrfCoordinator: %s', vrfCoordinator);
     console2.log('On ChainId: %s', block.chainid);
-    if (block.chainid == LOCAL_CHIAN_ID) {
+    if (block.chainid == LOCAL_CHAIN_ID) {
       vm.startBroadcast();
       VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, SUBSCRIPTION_FUND_AMOUNT);
       vm.stopBroadcast();
@@ -77,8 +77,8 @@ contract AddConsumer is Script {
     console2.log('Consumer added successfully');
   }
 
-  function run() external {
-    address raffle = DevOpsTools.get_most_recent_deployment('Raffle', block.chainid);
-    addConsumerUsingConfig(raffle);
-  }
+    function run() external {
+        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment("Raffle", block.chainid);
+        addConsumerUsingConfig(mostRecentlyDeployed);
+    }
 }
