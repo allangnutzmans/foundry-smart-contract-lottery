@@ -57,7 +57,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
   /* Events - Always emit a event when update the storage */
   event RaffleEntered(address indexed player);
-  event WinnrPicked(address indexed player);
+  event WinnerPicked(address indexed player);
 
   constructor(
     uint256 entranceFee,
@@ -153,7 +153,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     s_raffleState = RaffleState.OPEN;
     s_players = new address payable[](0);
     s_lastTimestamp = block.timestamp;
-    emit WinnrPicked(s_recentWinner);
+    emit WinnerPicked(s_recentWinner);
 
     // Interactions (External Contract Interactions)
     (bool success, ) = recentWinner.call{value: address(this).balance}("");
