@@ -71,7 +71,7 @@ contract NameRaffleTest is Test {
         raffle.enterRaffle{value: entranceFee}();
     }
 
-    function testDontAllowPlayersEnterWhileRaffleIsCalculating() public{
+    function testdontAllowPlayersEnterWhileRaffleIsCalculating() public{
         // Arrange
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
@@ -88,7 +88,7 @@ contract NameRaffleTest is Test {
     ////////////////////////////////////////////////////////
     /////////////  CHECK UPKEP ////////////////////////////
     ///////////////////////////////////////////////////////
-/*     function testCheckUpkeepReturnsFalseIfItHasNoBalance() public {
+    function testCheckUpkeepReturnsFalseIfItHasNoBalance() public {
         // Arrange
         vm.warp(block.timestamp + interval + 1); //timeskips 31 seconds
         vm.roll(block.number + 1); // rolls the block number to the next one - "good practice"
@@ -99,6 +99,6 @@ contract NameRaffleTest is Test {
         // Assert
         assert(!upkeepNeeded);
         
-    } */
+    }
 
 }
