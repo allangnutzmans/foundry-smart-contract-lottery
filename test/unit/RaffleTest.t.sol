@@ -5,9 +5,10 @@ import { Test } from "forge-std/Test.sol";
 import { DeployRaffle } from "../../script/DeployRaffle.s.sol";
 import { Raffle } from "../../src/Raffle.sol";
 import { HelperConfig } from "../../script/HelperConfig.s.sol";
+import { VRFCoordinatorV2_5Mock } from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
 
-contract NameRaffleTest is Test {
+contract RaffleTest is Test {
 
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed player);
@@ -36,6 +37,7 @@ contract NameRaffleTest is Test {
         subscriptionId = config.subscriptionId;
         callbackGasLimit = config.callbackGasLimit;
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
+        VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subscriptionId, address(raffle));
     }
 
     function testRaffleInitializesOpen() public view {

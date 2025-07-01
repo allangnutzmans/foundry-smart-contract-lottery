@@ -13,7 +13,7 @@ abstract contract CodeConstants {
   //LINK / ETH price
   int public MOCK_WEI_PER_UINT_LINK = 4e15;
 
-  uint256 public constant LOCAL_CHIAN_ID = 31337;
+  uint256 public constant LOCAL_CHAIN_ID = 31337;
   uint256 public constant ETH_SEPOLIA_CHAIN_ID = 1115511;
 }
 
@@ -40,7 +40,7 @@ contract HelperConfig is Script, CodeConstants {
   function getConfigByChainId(uint256 chainId) public returns (NetworkConfig memory) {
     if (networkConfigs[chainId].vrfCoordinator != address(0)) {
       return networkConfigs[chainId];
-    } else if (chainId == LOCAL_CHIAN_ID) {
+    } else if (chainId == LOCAL_CHAIN_ID) {
       return getOrCreateAnvilEthConfig();
     } else {
       revert HelperConfig__InvalidChainId();
