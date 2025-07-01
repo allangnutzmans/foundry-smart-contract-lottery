@@ -26,7 +26,7 @@ contract RaffleTest is Test {
     uint256 subscriptionId;
     uint32 callbackGasLimit;
 
-    function setUp() external{
+    function setUp() external {
         DeployRaffle deployer = new DeployRaffle();
         (raffle, helperConfig) = deployer.deployContract();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
@@ -37,6 +37,8 @@ contract RaffleTest is Test {
         subscriptionId = config.subscriptionId;
         callbackGasLimit = config.callbackGasLimit;
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
+        address deployerAddr = vm.addr(1); // Owner of the subscription
+        vm.prank(deployerAddr);
         VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subscriptionId, address(raffle));
     }
 
