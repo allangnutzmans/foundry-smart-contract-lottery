@@ -8,7 +8,9 @@ import { CreateSubscription, FundSubscription, AddConsumer } from "script/Intera
 
 contract DeployRaffle is Script {
 
-    function run() external  {}
+    function run() public {
+        deployContract();
+    }
 
     function deployContract() public returns (Raffle, HelperConfig){
         HelperConfig helperConfig = new HelperConfig();
@@ -43,7 +45,7 @@ contract DeployRaffle is Script {
 
         AddConsumer addConsumer = new AddConsumer();
         addConsumer.addConsumerUsingConfig(address(raffle));
-        
+
         return(raffle, helperConfig);
     }
 
