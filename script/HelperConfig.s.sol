@@ -70,7 +70,8 @@ contract HelperConfig is Script, CodeConstants {
       return localNetworkConfig;
     }
     // deploy mocks and such
-    vm.startBroadcast();
+    address deployer = vm.addr(1);
+    vm.startBroadcast(deployer);
     VRFCoordinatorV2_5Mock vrfCoordinatorMock = new VRFCoordinatorV2_5Mock(
       MOCK_BASE_FEE, // Amount to pay the node that node
       MOCK_GAS_PRICE_LINK,
