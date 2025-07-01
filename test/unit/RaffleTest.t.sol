@@ -9,6 +9,9 @@ import { HelperConfig } from "../../script/HelperConfig.s.sol";
 
 contract NameRaffleTest is Test {
 
+    event RaffleEntered(address indexed player);
+    event WinnerPicked(address indexed player);
+
     Raffle public raffle;
     HelperConfig public helperConfig;
 
@@ -56,5 +59,29 @@ contract NameRaffleTest is Test {
         // Assert
         address playerAdded = raffle.getPlayer(0);
         assertEq(playerAdded, PLAYER);
+    }
+
+    function testEnteringRaffleEmitsEvent() public {
+        // Arrange
+        vm.prank(PLAYER);
+        // Act
+        vm.expectEmit(true, false, false, false, address(raffle));
+        emit RaffleEntered(PLAYER);
+        // Assert
+        raffle.enterRaffle{value: entranceFee}();
+    }
+
+    function dontAllowPlayersEnterWhileRaffleIsCalculating() public{
+        // Arrange
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1); //timeskips 31 seconds
+        vm.roll(block.number + 1); // rolls the block number to the next one - "good practice"
+        // Act
+        raffle.performUpkeep("");
+        vm.expectRevert(Raffle.Raffle_RaffleNotOpen.selector);
+        // Assert
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
     }
 }
