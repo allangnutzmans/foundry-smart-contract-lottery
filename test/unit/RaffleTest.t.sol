@@ -5,10 +5,10 @@ import { Test } from 'forge-std/Test.sol';
 import { Vm } from 'forge-std/Vm.sol';
 import { DeployRaffle } from '../../script/DeployRaffle.s.sol';
 import { Raffle } from '../../src/Raffle.sol';
-import { HelperConfig } from '../../script/HelperConfig.s.sol';
+import { HelperConfig, CodeConstants } from '../../script/HelperConfig.s.sol';
 import { VRFCoordinatorV2_5Mock } from '@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol';
 
-contract RaffleTest is Test {
+contract RaffleTest is Test, CodeConstants {
   event RaffleEntered(address indexed player);
   event WinnerPicked(address indexed player);
 
@@ -36,10 +36,15 @@ contract RaffleTest is Test {
     subscriptionId = config.subscriptionId;
     callbackGasLimit = config.callbackGasLimit;
     vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
-    address deployerAddr = vm.addr(1); // Owner of the subscription
-    vm.prank(deployerAddr);
-    VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subscriptionId, address(raffle));
-    VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, 100 ether);
+
+    if (block.chainid == LOCAL_CHAIN_ID) {
+      address deployerAddr = helperConfig.getConfig().account; // Owner of the subscription
+      vm.prank(deployerAddr);
+      VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subscriptionId, address(raffle));
+      vm.prank(deployerAddr);
+      VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, 100 ether);
+    }
+
   }
 
   function testConstructorInitializesState() public {
@@ -216,13 +221,21 @@ contract RaffleTest is Test {
   /////////////  FULLFILLRANDOMWORDS ////////////////////
   ///////////////////////////////////////////////////////
 
-  function testFullfillrandomWordsCanOlnyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered {
+  modifier skipFork() {
+    if (block.chainid != LOCAL_CHAIN_ID) {
+      return;
+    }
+    _;
+  }
+
+
+  function testFullfillrandomWordsCanOlnyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered skipFork {
     // Act
     vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
     VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
   }
 
-  function testFullfillrandomWordsPicksWinnerAndResetsAndSendsMoney() public raffleEntered {
+  function testFullfillrandomWordsPicksWinnerAndResetsAndSendsMoney() public raffleEntered skipFork {
     // Arrange
     uint256 additionalEntrants = 3;
     uint256 startingIndex = 1;
