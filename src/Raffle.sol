@@ -25,6 +25,7 @@ pragma solidity 0.8.19;
 
 import { VRFConsumerBaseV2Plus } from '@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol';
 import { VRFV2PlusClient } from '@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol';
+
 /**
  * @title A Simple Raffle Contract
  * @author Allan Gnutzmans and Patrick Collins
@@ -48,16 +49,17 @@ contract Raffle is VRFConsumerBaseV2Plus {
   uint256 private s_lastTimestamp;
   address private s_recentWinner;
   address payable[] private s_players;
-  RaffleState private s_raffleState; 
+  RaffleState private s_raffleState;
 
   enum RaffleState {
-    OPEN, // 0 
+    OPEN, // 0
     CALCULATING //1
   }
 
   /* Events - Always emit a event when update the storage */
   event RaffleEntered(address indexed player);
   event WinnerPicked(address indexed player);
+  event RequestRaffleWinner(uint256 indexed requestId);
 
   constructor(
     uint256 entranceFee,
@@ -84,7 +86,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     if (msg.value < i_entranceFee) {
       revert Raffle__SendMoreToEnterRaffle();
     }
-    if (s_raffleState != RaffleState.OPEN){
+    if (s_raffleState != RaffleState.OPEN) {
       revert Raffle_RaffleNotOpen();
     }
 
@@ -100,27 +102,23 @@ contract Raffle is VRFConsumerBaseV2Plus {
   /**
    * @dev Function that Chainlink Automation nodes will call to see
    * if the lottery is ready to have a winner picked.
-   * 
-   * @param - ignored 
+   *
+   * @param - ignored
    * @return upkeepNeeded  - true if is time to restart the lottery
    * @return - ignored
    */
-  function checkUpkeep(bytes memory /* checkData */)
-        public
-        view
-        returns (bool upkeepNeeded, bytes memory /* performData */)
-    {
-        bool isOpen = RaffleState.OPEN == s_raffleState;
-        bool timePassed = ((block.timestamp - s_lastTimestamp) >= i_interval);
-        bool hasPlayers = s_players.length > 0;
-        bool hasBalance = address(this).balance > 0;
-        upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
-        return (upkeepNeeded, "");
-    }
+  function checkUpkeep(bytes memory /* checkData */) public view returns (bool upkeepNeeded, bytes memory /* performData */) {
+    bool isOpen = RaffleState.OPEN == s_raffleState;
+    bool timePassed = ((block.timestamp - s_lastTimestamp) >= i_interval);
+    bool hasPlayers = s_players.length > 0;
+    bool hasBalance = address(this).balance > 0;
+    upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
+    return (upkeepNeeded, '');
+  }
 
   function performUpkeep(bytes calldata /* performData */) external {
     // Check if enough time has passed
-    (bool upkeppNeeded, ) = checkUpkeep("");
+    (bool upkeppNeeded, ) = checkUpkeep('');
     if (!upkeppNeeded) {
       revert Raffle_UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
     }
@@ -136,6 +134,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
       extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({ nativePayment: false }))
     });
     uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+    emit RequestRaffleWinner(requestId);
   }
 
   // CEI: Checks, Effects, Interactions Pattern
@@ -145,28 +144,49 @@ contract Raffle is VRFConsumerBaseV2Plus {
     // Checks
 
     // Effect (Internal Contract State changes)
-  
+
     uint256 indexOfWinner = randomWords[0] % s_players.length;
     address payable recentWinner = s_players[indexOfWinner];
     s_recentWinner = recentWinner;
-    
+
     s_raffleState = RaffleState.OPEN;
     s_players = new address payable[](0);
     s_lastTimestamp = block.timestamp;
     emit WinnerPicked(s_recentWinner);
 
     // Interactions (External Contract Interactions)
-    (bool success, ) = recentWinner.call{value: address(this).balance}("");
+    (bool success, ) = recentWinner.call{ value: address(this).balance }('');
     if (!success) {
-        revert Raffle__TransferFailed();
+      revert Raffle__TransferFailed();
     }
   }
 
   /*
    * Getters
    */
+
   function getEntranceFee() external view returns (uint256) {
     return i_entranceFee;
+  }
+
+  function getInterval() external view returns (uint256) {
+    return i_interval;
+  }
+
+  function getVrfCoordinator() external view returns (address) {
+    return address(s_vrfCoordinator);
+  }
+
+  function getGasLane() external view returns (bytes32) {
+    return i_keyHash;
+  }
+
+  function getSubscriptionId() external view returns (uint256) {
+    return i_subscriptionId;
+  }
+
+  function getCallbackGasLimit() external view returns (uint32) {
+    return i_callbackGasLimit;
   }
 
   function getRflleState() external view returns (RaffleState) {
