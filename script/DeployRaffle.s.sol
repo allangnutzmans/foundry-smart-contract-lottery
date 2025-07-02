@@ -18,22 +18,24 @@ contract DeployRaffle is Script {
         //local -> feploy mocks, get local config
         //sepolia -> get sepolia config
 
+        //if there is no sub, create a new one subscription
         if (config.subscriptionId == 0) {
             //create subscription
             CreateSubscription subscritionContract = new CreateSubscription();
-            (config.subscriptionId, config.vrfCoordinator) = subscritionContract.createSubscription(config.vrfCoordinator);
+            (config.subscriptionId, config.vrfCoordinator) = subscritionContract.createSubscription(config.vrfCoordinator, config.account);
 
             //fund
             FundSubscription fundSubscription = new FundSubscription();
             fundSubscription.fundSubscription(
                 config.vrfCoordinator,
                 config.subscriptionId,
-                config.link
+                config.link,
+                config.account
             );
         }
 
-        address deployer = vm.addr(1);
-        vm.startBroadcast(deployer);
+        
+        vm.startBroadcast(config.account);
         Raffle raffle = new Raffle(
             config.entranceFee,
             config.interval,
