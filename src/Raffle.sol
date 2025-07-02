@@ -127,7 +127,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient.RandomWordsRequest({
       keyHash: i_keyHash, //max gas price that you are willing to pay in for request in wei
       subId: i_subscriptionId,
-      requestConfirmations: REQUEST_CONFIRMATIONS,
+      requestConfirmations: REQUEST_CONFIRMATIONS,// How many block confirmations
       callbackGasLimit: i_callbackGasLimit, // gas limit the chainlink node responds will call the callback fuction (fulfillRandomWords() -we will define later - gives the random number)
       numWords: NUM_WORDS,
       // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
@@ -140,7 +140,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
   // CEI: Checks, Effects, Interactions Pattern
   // or
   // FREI-PI: Function Requirements, Effects-Interactions, Protocol Invariants
-  function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal virtual override {
+  function fulfillRandomWords(uint256 /* requestId */, uint256[] calldata randomWords) internal virtual override {
     // Checks
 
     // Effect (Internal Contract State changes)
@@ -149,6 +149,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     address payable recentWinner = s_players[indexOfWinner];
     s_recentWinner = recentWinner;
 
+    // Reset the state of the raffle
     s_raffleState = RaffleState.OPEN;
     s_players = new address payable[](0);
     s_lastTimestamp = block.timestamp;
