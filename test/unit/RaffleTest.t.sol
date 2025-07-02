@@ -210,4 +210,15 @@ contract RaffleTest is Test {
     assert(uint256(requestId) > 0);
     assert(uint256(raffleState) == 1); // CALCULATING
   }
+
+    ////////////////////////////////////////////////////////
+    /////////////  FULLFILLRANDOMWORDS ////////////////////
+    ///////////////////////////////////////////////////////
+
+    function testFullfillrandomWordsCanOlnyBeCalledAfterPerformUpkeep(uint256 randomRequestId) raffleEntered public {
+        // Act
+        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
+        
+    }
 }
