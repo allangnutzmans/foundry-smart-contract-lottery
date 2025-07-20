@@ -21,14 +21,14 @@ const Sidebar = () => {
       <div className="p-4 h-20 flex items-center">
         <div className="flex items-center space-x-2">
           <Gem className="h-8 w-8 text-brand-purple" />
-          <h1 className="text-2xl font-bold">Logo</h1>
+          <h1 className="text-2xl font-bold">Raffles</h1>
         </div>
       </div>
       <div className="p-4 relative">
         <Search className="absolute left-7 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
         <input
           type="text"
-          placeholder="Search Games"
+          placeholder="Search Raffles"
           className="w-full bg-muted rounded-md p-2 pl-10"
         />
       </div>

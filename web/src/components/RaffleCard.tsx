@@ -4,7 +4,7 @@ import { Gem } from 'lucide-react';
 
 const RaffleCard = () => {
   return (
-    <div className="relative w-full rounded-xl p-px shadow-2xl overflow-hidden">
+    <div className="relative w-full h-full rounded-xl p-px shadow-2xl overflow-hidden">
       <div className="card-border-animated"></div>
       <div className="relative z-10 h-full w-full rounded-[15px] bg-background p-4">
         <div className="flex items-center space-x-4">
