@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import '@rainbow-me/rainbowkit/styles.css';
 import Sidebar from "../components/Sidebar";
+import Providers from "@/app/providers";
+import { headers } from "next/headers";
+import {ConnectBtn} from "@/components/connectButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +27,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookie = headers().get("cookie");
   return (
     <html lang="en" className="dark h-full">
       <body
@@ -30,7 +35,11 @@ export default function RootLayout({
       >
         <div className="relative min-h-screen">
           <Sidebar />
-          <main className="ml-64 p-4">{children}</main>
+          <main className="ml-64 p-4">
+            <Providers cookie={cookie} >
+              {children}
+            </Providers>
+          </main>
         </div>
       </body>
     </html>
