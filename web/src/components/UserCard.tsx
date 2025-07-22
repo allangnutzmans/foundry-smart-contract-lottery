@@ -41,7 +41,7 @@ export function UserCard() {
 
     return (
         <div className="w-full max-w-xs rounded-[15px] bg-card  text-white shadow-lg space-y-3">
-            <div className="px-4 pt-4 space-y-3">
+            <div className="px-4 pt-4 space-y-4">
                 {/* Top Row */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -91,7 +91,7 @@ export function UserCard() {
 
             </div>
             {/* Rakeback */}
-            <div className="flex items-center justify-between text-xs text-gray-400 border-t p-3 px-4 bg-card-foreground rounded-b-[15px]">
+            <div className="flex items-center justify-between text-xs text-gray-400 p-3 px-4 bg-card-foreground rounded-b-[15px]">
                 <span>Rakeback</span>
                 <span className="rounded-md bg-green-900/40 px-2 py-1 text-green-400 font-semibold text-sm">
                   🪙 0.001 {data?.symbol}
