@@ -5,6 +5,7 @@ import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { w3Config } from "@/lib/w3Config";
+import {getRainbowKitTheme} from "@/config/rainbowkitTheme";
 
 const queryClient = new QueryClient();
 
@@ -13,19 +14,14 @@ type Props = {
     cookie?: string | null;
 };
 
+const theme = getRainbowKitTheme();
 export default function Providers({ children , cookie }: Props) {
     const initialState = cookieToInitialState(w3Config, cookie);
     return (
         <WagmiProvider config={w3Config} initialState={initialState}>
             <QueryClientProvider client={queryClient}>
                 <RainbowKitProvider
-                    theme={darkTheme({
-                        accentColor: "#0E76FD",
-                        accentColorForeground: "white",
-                        borderRadius: "large",
-                        fontStack: "system",
-                        overlayBlur: "small",
-                    })}
+                    theme={theme}
                 >
                     {children}
                 </RainbowKitProvider>
