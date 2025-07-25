@@ -11,7 +11,7 @@ import {useAccount, useBalance, useDisconnect} from "wagmi";
 import {emojiAvatarForAddress} from "@/lib/emojiAvatarForAddress";
 import {useAccountModal, useChainModal } from "@rainbow-me/rainbowkit";
 import {useEffect, useRef, useMemo} from "react";
-import {formatBalance} from "@/lib/helpers";
+import { formatEther } from 'viem'
 
 export function UserCard() {
     const { isConnecting, address, isConnected, chain } = useAccount();
@@ -21,7 +21,7 @@ export function UserCard() {
 
     const formattedBalance = useMemo(() => {
         if (!data || data?.decimals == null) return '0';
-        return formatBalance(data.value, data.decimals);
+        return formatEther(data.value);
     }, [data]);
 
     const { color: backgroundColor, emoji } = emojiAvatarForAddress(
