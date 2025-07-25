@@ -1,7 +1,7 @@
 "use client";
 
 import { WagmiProvider, cookieToInitialState } from "wagmi";
-import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { w3Config } from "@/lib/w3Config";
