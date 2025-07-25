@@ -1,25 +1,48 @@
+"use client";
+
 import React from 'react';
-import { Button } from './ui/button';
-import { Gem } from 'lucide-react';
+import { useAccount, useBalance, useReadContract } from 'wagmi';
+import { lotteryContract } from '@/lib/lotteryContract';
+import RaffleCardOngoing from './RaffleCardOngoing';
+import RaffleCardNew from './RaffleCardNew';
+import { RAFLLE_STATE, useRaffleState } from '@/hooks/useRaffleState';
+
+export type EntranceFee = {
+  value?: bigint,
+  symbol: string,
+}
 
 const RaffleCard = () => {
+  const { chain } = useAccount();
+  const symbol = chain?.nativeCurrency.symbol ?? 'ETH';
+  const { data } = useReadContract(
+    { ...lotteryContract, functionName: 'getEntranceFee' },
+  );
+
+  const entranceFee = {
+    value: data,
+    symbol,
+  };
+
+  const  { timeLeft, raffleState } = useRaffleState();
+
+  const { data: balance } = useBalance({
+    address: lotteryContract.address,
+    watch: true,
+  })
+
+  console.log(timeLeft)
+
   return (
-    <div className="relative w-full h-full rounded-xl p-px shadow-2xl overflow-hidden">
-      <div className="card-border-animated"></div>
-      <div className="relative z-10 h-full w-full rounded-[15px] bg-background p-4">
-        <div className="flex items-center space-x-4">
-          <Gem className="h-16 w-16 text-brand-purple" />
-          <div>
-            <h2 className="text-4xl font-bold text-white">$20</h2>
-            <p className="text-muted-foreground">Raffle Price</p>
-          </div>
-        </div>
-        <Button className="w-full mt-6 bg-brand-purple hover:bg-brand-purple/90">
-          How it Works
-        </Button>
-      </div>
-    </div>
+    <>
+      {raffleState === RAFLLE_STATE.OPEN ? (
+        <RaffleCardOngoing balance={balance} timeLeft={timeLeft} entranceFee={entranceFee} />
+      ) : (
+        <RaffleCardNew balance={balance} entranceFee={entranceFee} />
+      )}
+    </>
   );
 };
+
 
 export default RaffleCard;
