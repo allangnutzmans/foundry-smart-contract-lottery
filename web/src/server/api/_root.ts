@@ -1,11 +1,7 @@
-import {z} from "zod";
 import { createTRPCRouter } from '@/server/trpc';
+import { userRouter } from '@/server/api/user';
 
 export const appRouter = createTRPCRouter({
-    hello: publicProcedure
-        .input(z.object({name: z.string().optional()}))
-        .query(({input}) => {
-            return {message: `Hello, ${input.name ?? 'world'}!`}
-        }),
+  user: userRouter,
 })
 export type AppRouter = typeof appRouter
