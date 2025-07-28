@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { WagmiProvider, cookieToInitialState } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { trpc, client } from "@/lib/trpc";
+import { api, client } from "@/lib/trpc";
 import { rainbowkitConfig } from "@/lib/rainbowkitConfig";
 import { getRainbowKitTheme } from "@/config/rainbowkitTheme";
 
@@ -19,13 +19,13 @@ export default function Providers({ children , cookie }: Props) {
     return (
         <WagmiProvider config={rainbowkitConfig} initialState={initialState}>
             <QueryClientProvider client={queryClient}>
-                <trpc.Provider client={client} queryClient={queryClient}>
+                <api.Provider client={client} queryClient={queryClient}>
                   <RainbowKitProvider
                       theme={theme}
                   >
                       {children}
                   </RainbowKitProvider>
-              </trpc.Provider>
+              </api.Provider>
             </QueryClientProvider>
         </WagmiProvider>
     );
