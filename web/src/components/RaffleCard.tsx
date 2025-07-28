@@ -31,8 +31,6 @@ const RaffleCard = () => {
     watch: true,
   })
 
-  console.log(timeLeft)
-
   return (
     <>
       {raffleState === RAFLLE_STATE.OPEN ? (
