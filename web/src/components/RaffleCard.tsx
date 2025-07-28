@@ -1,11 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAccount, useBalance, useReadContract } from 'wagmi';
 import { lotteryContract } from '@/lib/lotteryContract';
 import RaffleCardOngoing from './RaffleCardOngoing';
 import RaffleCardNew from './RaffleCardNew';
 import { RAFLLE_STATE, useRaffleState } from '@/hooks/useRaffleState';
+import { api } from '@/lib/trpc';
 
 export type EntranceFee = {
   value?: bigint,
@@ -13,8 +14,9 @@ export type EntranceFee = {
 }
 
 const RaffleCard = () => {
-  const { chain } = useAccount();
+  const { address, chain, isConnected } = useAccount();
   const symbol = chain?.nativeCurrency.symbol ?? 'ETH';
+
   const { data } = useReadContract(
     { ...lotteryContract, functionName: 'getEntranceFee' },
   );
@@ -25,11 +27,29 @@ const RaffleCard = () => {
   };
 
   const  { timeLeft, raffleState } = useRaffleState();
-
   const { data: balance } = useBalance({
     address: lotteryContract.address,
     watch: true,
   })
+
+  const { data: existingUser, refetch } = api.user.getByWallet.useQuery(
+    { wallet: address },
+    {
+      enabled: !!address,
+      refetchOnWindowFocus: false,
+      refetchInterval: 10000,
+    }
+  )
+
+  const { mutate: createUser } = api.user.create.useMutation({
+    onSuccess: () => refetch(),
+  });
+
+  useEffect(() => {
+    if (isConnected && address && !existingUser) {
+      createUser({ wallet: address });
+    }
+  }, [isConnected, address, existingUser, createUser]);
 
   return (
     <>
