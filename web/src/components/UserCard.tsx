@@ -15,6 +15,7 @@ import { formatEther } from 'viem'
 
 export function UserCard() {
     const { isConnecting, address, isConnected, chain } = useAccount();
+
     const { data } = useBalance({
         address: address,
     })
@@ -37,7 +38,6 @@ export function UserCard() {
     useEffect(() => {
         isMounted.current = true;
     }, []);
-
 
     return (
         <div className="w-full max-w-xs rounded-[15px] bg-card  text-white shadow-lg space-y-3">
@@ -87,7 +87,7 @@ export function UserCard() {
                 </div>
 
                 {/* Balance Row */}
-                <ButtonGroup balance={formattedBalance} symbol={data?.symbol} />
+                <ButtonGroup />
 
             </div>
             {/* Rakeback */}
