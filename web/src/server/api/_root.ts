@@ -1,7 +1,9 @@
 import { createTRPCRouter } from '@/server/trpc';
 import { userRouter } from '@/server/api/user';
+import { wagerHistoryRouter } from '@/server/api/wagerHistory';
 
 export const appRouter = createTRPCRouter({
   user: userRouter,
-})
-export type AppRouter = typeof appRouter
+  wagerHistory: wagerHistoryRouter,
+});
+export type AppRouter = typeof appRouter;
