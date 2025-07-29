@@ -21,12 +21,12 @@ export const metadata: Metadata = {
   description: "The best on-chain lottery!",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookie = headers().get("cookie");
+  const cookie = await headers().get("cookie") ?? "";
   return (
     <html lang="en" className="dark h-full">
       <body
