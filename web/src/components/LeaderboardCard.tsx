@@ -1,10 +1,10 @@
 import React from 'react';
-import { Coins } from 'lucide-react';
-
+import { Coins } from 'lucide-react'
+import { formatTimeAgo } from '@/lib/date';
 interface LeaderboardCardProps {
   rank: number;
   username: string;
-  timeAgo: string;
+  timeAgo: string; // Changed to string as it comes from API as ISO string
   wager: string;
   avatarColors: string[];
 }
@@ -53,7 +53,7 @@ const LeaderboardCard = ({ rank, username, timeAgo, wager, avatarColors }: Leade
         <div className="flex justify-between items-center text-xs">
           <div className="flex flex-col items-start space-x-1">
             <span className="text-purple-300 font-medium">TIME</span>
-            <span className="text-white">{timeAgo}</span>
+            <span className="text-white">{formatTimeAgo(timeAgo)}</span>
           </div>
           
           <div className="flex flex-col items-end space-x-1">

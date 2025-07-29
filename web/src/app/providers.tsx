@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { WagmiProvider, cookieToInitialState } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SessionProvider } from "next-auth/react";
 import { api, client } from "@/lib/trpc";
 import { rainbowkitConfig } from "@/lib/rainbowkitConfig";
 import { getRainbowKitTheme } from "@/config/rainbowkitTheme";
@@ -23,7 +24,9 @@ export default function Providers({ children , cookie }: Props) {
                   <RainbowKitProvider
                       theme={theme}
                   >
+                    <SessionProvider session={undefined}>
                       {children}
+                    </SessionProvider>
                   </RainbowKitProvider>
               </api.Provider>
             </QueryClientProvider>
