@@ -7,6 +7,7 @@ import RaffleCardOngoing from './RaffleCardOngoing';
 import RaffleCardNew from './RaffleCardNew';
 import { RAFLLE_STATE, useRaffleState } from '@/hooks/useRaffleState';
 import { api } from '@/lib/trpc';
+import { type Address } from 'viem'; // Import Address type
 
 export type EntranceFee = {
   value?: bigint,
@@ -18,7 +19,7 @@ const RaffleCard = () => {
   const symbol = chain?.nativeCurrency.symbol ?? 'ETH';
 
   const { data } = useReadContract(
-    { ...lotteryContract, functionName: 'getEntranceFee' },
+    { ...lotteryContract, address: lotteryContract.address as Address, functionName: 'getEntranceFee' },
   );
 
   const entranceFee = {
@@ -28,8 +29,7 @@ const RaffleCard = () => {
 
   const  { timeLeft, raffleState } = useRaffleState();
   const { data: balance } = useBalance({
-    address: lotteryContract.address,
-    watch: true,
+    address: lotteryContract.address as Address,
   })
 
   const { data: existingUser, refetch } = api.user.getByWallet.useQuery(
