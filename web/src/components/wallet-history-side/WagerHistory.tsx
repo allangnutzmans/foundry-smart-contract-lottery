@@ -1,10 +1,11 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { api as trpc } from '@/lib/trpc';
-import { WagerHistory as WagerHistoryType } from '@/generated/prisma/client';
+import { WagerHistory as WagerHistoryType } from '@prisma/client';
 import { signIn } from 'next-auth/react';
 import { WagerHistoryCard } from './WagerHistoryCard';
 import { Button } from '@/components/ui/button';
+import { WagerHistoryCardSkeleton } from '@/components/wallet-history-side/WagerHistoryCardSkeleton';
 
 export const WagerHistory = () => {
   const { data: session, status } = useSession();
@@ -23,7 +24,7 @@ export const WagerHistory = () => {
     return (
       <div className="mt-5 flex justify-center">
         <Button
-          onClick={() => signIn()}
+          onClick={() => signIn('google')}
           variant="secondary"
           className="w-full max-w-xs"
         >
@@ -32,19 +33,21 @@ export const WagerHistory = () => {
       </div>
     );
   }
-
-  if (isLoading) return <div className="text-center text-gray-500">Loading wager history...</div>;
-  if (isError) return <div className="text-center text-red-500">Error loading wager history.</div>;
-  if (!wagerHistory || wagerHistory.length === 0) return <div className="text-center text-gray-500">No wager history found.</div>;
-
+  const loadSkeleton = isLoading || isError || !wagerHistory || wagerHistory.length === 0;
   return (
     <div className="mt-5">
-      <h3 className="text-lg font-semibold mb-3">Your Wager History</h3>
-      <div className="grid gap-3">
-        {wagerHistory.map((wager: WagerHistoryType) => (
-          <WagerHistoryCard key={wager.id} wager={wager} />
-        ))}
-      </div>
+      <h3 className="text-sm font-semibold mb-3">Your Wager History</h3>
+      {loadSkeleton ? (
+        Array.from({ length: 7 }).map((_, index) => (
+          <WagerHistoryCardSkeleton loading={isLoading} key={index} />
+        ))
+      ) : (
+          <div className="grid gap-3">
+            {wagerHistory?.map((wager: WagerHistoryType) => (
+              <WagerHistoryCard key={wager.id} wager={wager} />
+            ))}
+          </div>
+      )}
     </div>
   );
-}; 
+}
