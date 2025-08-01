@@ -65,7 +65,7 @@ export function useRaffleState() {
     updateTimeLeft();
     const timer = setInterval(updateTimeLeft, 1000);
     return () => clearInterval(timer);
-  }, [interval, lastTimestamp]);
+  }, [interval, lastTimestamp, queryClient]);
 
 
   return {
