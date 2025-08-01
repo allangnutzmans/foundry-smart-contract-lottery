@@ -32,8 +32,10 @@ const RaffleCard = () => {
     address: lotteryContract.address as Address,
   })
 
-  const { data: existingUser, refetch } = api.user.getByWallet.useQuery(
-    { wallet: address },
+
+  //TODO Move this logic to auth
+  const { data: existingWallet, refetch } = api.wallet.getByAddress.useQuery(
+    { address: address as Address },
     {
       enabled: !!address,
       refetchOnWindowFocus: false,
@@ -41,15 +43,18 @@ const RaffleCard = () => {
     }
   )
 
-  const { mutate: createUser } = api.user.create.useMutation({
+  const { mutate: createWallet } = api.wallet.create.useMutation({
     onSuccess: () => refetch(),
   });
 
   useEffect(() => {
-    if (isConnected && address && !existingUser) {
-      createUser({ wallet: address });
+    if (!isConnected || !address) return;
+    if (existingWallet === undefined) return; // loading state
+    if (!existingWallet) {
+      createWallet({ address: address });
     }
-  }, [isConnected, address, existingUser, createUser]);
+  }, [isConnected, address, existingWallet, createWallet]);
+
 
   return (
     <>
