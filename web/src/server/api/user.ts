@@ -1,55 +1,59 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from '@/server/trpc';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/trpc';
 import { prisma } from '@/server/prisma';
 
 export const userRouter = createTRPCRouter({
   getByWallet: publicProcedure
     .input(z.object({ wallet: z.string().startsWith("0x") }))
     .query(async ({ input }) => {
-      return prisma.user.findUnique({
-        where: { wallet: input.wallet },
-      });
-    }),
-
-  create: publicProcedure
-    .input(
-      z.object({
-        wallet: z.string(),
-        nickname: z.string().optional(),
-        avatar: z.string().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      return prisma.user.create({
-        data: {
-          id: crypto.randomUUID(),
-          wallet: input.wallet,
-          nickname: input.nickname,
-          avatar: input.avatar,
+      return prisma.wallet.findUnique({
+        where: { address: input.wallet.toLowerCase() },
+        include: {
+          user: true,
         },
       });
     }),
-    getTop10Wagers: publicProcedure
-      .query(async () => {
-        return prisma.user.findMany({
-          orderBy: { wager: 'desc' },
-          take: 10,
-          select: {
-            id: true,
-            wallet: true,
-            nickname: true,
-            avatar: true,
-            wager: true,
-            updatedAt: true,
-            createdAt: true,
+
+  linkWallet: protectedProcedure
+    .input(z.object({
+      address: z.string().min(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const address = input.address.toLowerCase();
+
+      const existingWallet = await ctx.prisma.wallet.findUnique({
+        where: { address },
+      });
+
+      if (existingWallet) {
+        if (!existingWallet.userId) {
+          await ctx.prisma.wallet.update({
+            where: { address },
+            data: { userId },
+          });
+        } else if (existingWallet.userId !== userId) {
+          throw new Error('This wallet is already linked with another user.');
+        }
+      } else {
+        await ctx.prisma.wallet.create({
+          data: {
+            address,
+            user: { connect: { id: userId } },
           },
-        })
-      }),
+        });
+      }
+
+      return { success: true };
+    }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       return prisma.user.findUnique({
         where: { id: input.id },
+        include: {
+          wallets: true,
+        },
       });
     }),
 });
