@@ -7,11 +7,12 @@ import { SessionProvider } from "next-auth/react";
 import { api, client } from "@/lib/trpc";
 import { rainbowkitConfig } from "@/lib/rainbowkitConfig";
 import { getRainbowKitTheme } from "@/config/rainbowkitTheme";
+import type { Session } from 'next-auth';
 
 type Props = {
     children: React.ReactNode;
     cookie?: string | null;
-    session: never;
+    session: Session | null
 };
 
 const theme = getRainbowKitTheme();
