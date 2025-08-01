@@ -5,6 +5,8 @@ import '@rainbow-me/rainbowkit/styles.css';
 import Sidebar from "../components/Sidebar";
 import Providers from "@/app/providers";
 import { headers } from "next/headers";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +28,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookie = await headers().get("cookie") ?? "";
+  const headersList = await headers();
+  const cookie = headersList.get("cookie") ?? "";
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en" className="dark h-full">
       <body
@@ -35,7 +40,7 @@ export default async function RootLayout({
         <div className="relative min-h-screen">
           <Sidebar />
           <main className="ml-64 p-4">
-            <Providers cookie={cookie} >
+            <Providers session={session} cookie={cookie} >
               {children}
             </Providers>
           </main>
