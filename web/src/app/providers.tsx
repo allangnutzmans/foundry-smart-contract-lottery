@@ -11,10 +11,11 @@ import { getRainbowKitTheme } from "@/config/rainbowkitTheme";
 type Props = {
     children: React.ReactNode;
     cookie?: string | null;
+    session: never;
 };
 
 const theme = getRainbowKitTheme();
-export default function Providers({ children , cookie }: Props) {
+export default function Providers({ children , cookie, session }: Props) {
     const initialState = cookieToInitialState(rainbowkitConfig, cookie);
     const [queryClient] = useState(() => new QueryClient())
     return (
@@ -24,7 +25,7 @@ export default function Providers({ children , cookie }: Props) {
                   <RainbowKitProvider
                       theme={theme}
                   >
-                    <SessionProvider session={undefined}>
+                    <SessionProvider session={session}>
                       {children}
                     </SessionProvider>
                   </RainbowKitProvider>
