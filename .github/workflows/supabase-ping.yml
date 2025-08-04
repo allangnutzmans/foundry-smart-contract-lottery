@@ -33,15 +33,11 @@ jobs:
           node -e "
           (async () => {
             try {
-              // Debugging: Log environment variables (optional)
-              // console.log('Supabase URL:', process.env.SUPABASE_URL);
-              // console.log('Supabase Key:', process.env.SUPABASE_KEY);
-
               // Import Supabase client
               const { createClient } = require('@supabase/supabase-js');
               const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-              const { data, error } = await supabase.from('_prisma_migrations').select('*').limit(1);
+              const { error } = await supabase.rpc('version');
 
               if (error) throw error;
 
