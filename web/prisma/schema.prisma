@@ -13,6 +13,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model PingDummy {
+  id        String   @id @default(cuid())
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
