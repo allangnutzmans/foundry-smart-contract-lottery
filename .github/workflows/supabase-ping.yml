@@ -37,7 +37,7 @@ jobs:
               const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
               const { data, error } = await supabase
-                .from('PungDummy')
+                .from('PingDummy')
                 .select('*')
                 .limit(1);
 
