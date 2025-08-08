@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
-import Sidebar from "../components/Sidebar";
 import Providers from "@/app/providers";
 import { headers } from "next/headers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import AppSidebar from "@/components/AppSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,14 +37,9 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full min-h-screen`}
       >
-        <div className="relative min-h-screen">
-          <Sidebar />
-          <main className="ml-64 p-4">
-            <Providers session={session} cookie={cookie} >
-              {children}
-            </Providers>
-          </main>
-        </div>
+        <Providers session={session} cookie={cookie}>
+          <AppSidebar>{children}</AppSidebar>
+        </Providers>
       </body>
     </html>
   );
