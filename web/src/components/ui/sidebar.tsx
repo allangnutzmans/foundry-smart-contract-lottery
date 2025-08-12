@@ -671,13 +671,15 @@ function SidebarMenuSubButton({
   size = "md",
   isActive = false,
   className,
+  disabled = false,
   ...props
 }: React.ComponentProps<"a"> & {
   asChild?: boolean
   size?: "sm" | "md"
   isActive?: boolean
+  disabled?: boolean
 }) {
-  const Comp = asChild ? Slot : "a"
+  const Comp = asChild && !disabled ? Slot : "a"
 
   return (
     <Comp
@@ -685,6 +687,7 @@ function SidebarMenuSubButton({
       data-sidebar="menu-sub-button"
       data-size={size}
       data-active={isActive}
+      aria-disabled={disabled}
       className={cn(
         "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
         "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
