@@ -1,5 +1,5 @@
 export const lotteryContract = {
-    address: '0xC34ABFB1DAaBCA88Ec6af4bAb642Aa80F2aa489b',
+    address: '0xC34ABFB1DAaBCA88Ec6af4bAb642Aa80F2aa489b' as const,
     abi: [{
         "inputs": [{"internalType": "uint256", "name": "entranceFee", "type": "uint256"}, {
             "internalType": "uint256",
