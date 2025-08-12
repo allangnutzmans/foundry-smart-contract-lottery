@@ -1,14 +1,10 @@
-'use client';
-
-import React, { useEffect } from 'react';
 import { Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi';
 import { type UseBalanceReturnType } from 'wagmi'
-import { lotteryContract } from '@/lib/lotteryContract';
 import { formatEther } from 'viem';
 import { EntranceFee } from '@/components/RaffleCard';
-import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { EnterRaffleDD } from '@/components/enter-raffle/EnterRaffleDD';
 
 const RaffleCardNew = ({
  balance,
@@ -17,38 +13,10 @@ const RaffleCardNew = ({
   entranceFee?: EntranceFee;
   balance: UseBalanceReturnType['data'];
 }) => {
+  const router = useRouter();
+
   const formattedBalance = balance?.value ? formatEther(balance.value) : '0';
   const formattedFee = entranceFee?.value ? formatEther(entranceFee.value) : '0';
-
-  const queryClient = useQueryClient();
-  const { data: hash, writeContract } = useWriteContract();
-
-  const {
-    isLoading: isConfirming,
-    isSuccess: isConfirmed,
-  } = useWaitForTransactionReceipt({
-    hash,
-    query: {
-      enabled: !!hash,
-    },
-  });
-
-  useEffect(() => {
-    if (isConfirmed) {
-      queryClient.invalidateQueries({
-        queryKey: ['balance'],
-      });
-    }
-  }, [isConfirmed, queryClient]);
-
-  const enterRaffle = async () => {
-    writeContract({
-      ...lotteryContract,
-      functionName: 'enterRaffle',
-      value: entranceFee?.value,
-    });
-  };
-
 
   return (
     <div className="relative w-full h-40 rounded-2xl p-px shadow-xl overflow-hidden bg-gradient-to-r from-purple-900 via-purple-700 to-purple-500">
@@ -82,7 +50,7 @@ const RaffleCardNew = ({
               </div>
             </div>
 
-            <Button className="bg-purple-600/40 hover:bg-purple-700/40 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:shadow-purple-500/25">
+            <Button onClick={() => router.push('/raffle/enter')} className="bg-purple-600/40 hover:bg-purple-700/40 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:shadow-purple-500/25">
               How it Works
             </Button>
           </div>
@@ -95,14 +63,7 @@ const RaffleCardNew = ({
 
             {/* Countdown Timer */}
             <div className="flex space-x-[0.1em]">
-              {/* Button */}
-              <Button
-                variant="secondary"
-                className="text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-purple-500/25"
-                onClick={enterRaffle}
-              >
-                {isConfirming ? 'JOINING...' : isConfirmed ? 'JOINED!' : 'JOIN NEW RAFFLE'}
-              </Button>
+              <EnterRaffleDD />
             </div>
           </div>
         </div>
