@@ -16,8 +16,8 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image'
 
 export function UserCard() {
-    const { isConnecting, address, isConnected, chain } = useAccount();
-  const { data: session } = useSession();
+    const { address } = useAccount(); 
+    const { data: session } = useSession();
 
     const { data } = useBalance({
         address: address,
@@ -95,7 +95,7 @@ export function UserCard() {
                   </div>
                 </div>
 
-                {/* Direita: Dropdown */}
+                {/* Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="cursor-pointer" aria-label="Open user menu">
