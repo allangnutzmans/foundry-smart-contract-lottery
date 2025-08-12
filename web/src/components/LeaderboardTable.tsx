@@ -1,13 +1,13 @@
 'use client';
+import React from 'react';
 
-import { User } from '@/generated/prisma/client';
+import { useReadContract } from 'wagmi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { formatTimeAgo } from '@/lib/date';
-import React from 'react';
 import { lotteryContract } from '@/lib/lotteryContract';
-import { useReadContract } from 'wagmi';
+import { WagerRecord } from '@/components/Leaderboard';
 
-export default function LeaderboardTable({ players }: { players: User[] }) {
+export default function LeaderboardTable({ players }: { players: WagerRecord[] }) {
     players = players.slice(3, 10);
     const { data: numberOfPlayers } = useReadContract({
         abi: lotteryContract.abi,
@@ -33,7 +33,7 @@ export default function LeaderboardTable({ players }: { players: User[] }) {
                 <div className="h-2"></div>
                 <TableBody className="[&>tr:nth-child(even)]:bg-card [&>tr:nth-child(odd)]:bg-card-foreground/20 [&>tr:hover]:!bg-card-foreground/30">
                     {players.map((player, index) => (
-                        <React.Fragment key={player.id}>
+                        <React.Fragment key={player.walletId}>
                             <TableRow
                                 className="border-none rounded-lg transition-colors first:rounded-t-lg last:rounded-b-lg my-2"
                             >
@@ -43,18 +43,15 @@ export default function LeaderboardTable({ players }: { players: User[] }) {
                                         {index + 1}
                                     </span>
                                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm">
-                                            {player.avatar}
+                                            {player.user?.avatar}
                                         </div>
                                         <span className="text-white font-medium">
-                                            {player.nickname}
+                                            {player.user?.nickname || player.address}
                                         </span>
                                     </div>
                                 </TableCell>
                                 <TableCell className="py-4 text-slate-300">
-                                    {formatTimeAgo(
-                                        player.updatedAt.toISOString() ?? 
-                                        player.createdAt.toISOString()
-                                    )}
+                                    {formatTimeAgo(player.timeLastWager.toISOString())}
                                 </TableCell>
                                 <TableCell className="py-4 pr-6 text-right rounded-r-lg">
                                     <div className="flex items-center justify-end gap-2">
@@ -62,7 +59,7 @@ export default function LeaderboardTable({ players }: { players: User[] }) {
                                             <div className="w-2 h-2 rounded-full bg-yellow-700"></div>
                                         </div>
                                         <span className="text-white font-medium">
-                                        {player.wager}
+                                        {player.totalWager}
                                     </span>
                                     </div>
                                 </TableCell>

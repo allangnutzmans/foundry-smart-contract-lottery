@@ -3,111 +3,144 @@ import LeaderboardCard from './LeaderboardCard';
 import LeaderboardTable from './LeaderboardTable';
 import { appRouter } from '@/server/api/_root'; // Import the server router
 import { createTRPCContext } from '@/server/trpc';
-import { User } from '@/generated/prisma';
+
+export type WagerRecord = {
+  walletId: string,
+  totalWager: number,
+  address: string | null
+  user:
+    {
+      id: string,
+      nickname: string | null,
+      avatar: string | null,
+    } | null,
+  timeLastWager: Date,
+}
 
 const Leaderboard = async () => {
 
     const defaultAvatarColors = ["#a855f7", "#ec4899", "#3b82f6"];
 
     // Create a tRPC caller for server-side calls
-    const caller = appRouter.createCaller(await createTRPCContext({ headers: new Headers() }));
+    const caller = appRouter.createCaller(await createTRPCContext({ req: new Request("http://localhost") }));
 
     // Directly call the tRPC procedure on the server
-    const wagers = await caller.user.getTop10Wagers();
-    const wagers_static: User[] = [
+    const wagers: WagerRecord[] = await caller.wallet.getTop10Wagers();
+    console.log(wagers)
+    const wagers_static: WagerRecord[] = [
         {
-            id: "1",
-            wallet: "0x123",
-            nickname: "dingzhexiong",
-            avatar: "🎮",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "1",
+            address: "0x123",
+            user: {
+                id: "1",
+                nickname: "dingzhexiong",
+                avatar: "🎮",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "2",
-            wallet: "0x123",
-            nickname: "fanjiezhi",
-            avatar: "🎯",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "2",
+            address: "0x123",
+            user: {
+                id: "2",
+                nickname: "fanjiezhi",
+                avatar: "🎯",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "3",
-            wallet: "0x123",
-            nickname: "xaur.eth",
-            avatar: "🎲",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "3",
+            address: "0x123",
+            user: {
+                id: "3",
+                nickname: "xaur.eth",
+                avatar: "🎲",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "4",
-            wallet: "0x123",
-            nickname: "empe_0",
-            avatar: "🎨",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "4",
+            address: "0x123",
+            user: {
+                id: "4",
+                nickname: "empe_0",
+                avatar: "🎨",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "5",
-            wallet: "0x123",
-            nickname: "quazawer",
-            avatar: "�",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "5",
+            address: "0x123",
+            user: {
+                id: "5",
+                nickname: "quazawer",
+                avatar: "",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "6",
-            wallet: "0x123",
-            nickname: "Vaxziz",
-            avatar: "🎭",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "6",
+            address: "0x123",
+            user: {
+                id: "6",
+                nickname: "Vaxziz",
+                avatar: "🎭",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "7",
-            wallet: "0x123",
-            nickname: "Cheng_qt",
-            avatar: "🎸",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "7",
+            address: "0x123",
+            user: {
+                id: "7",
+                nickname: "Cheng_qt",
+                avatar: "🎸",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "8",
-            wallet: "0x123",
-            nickname: "LuckyUser8",
-            avatar: "🍀",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "8",
+            address: "0x123",
+            user: {
+                id: "8",
+                nickname: "LuckyUser8",
+                avatar: "🍀",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "9",
-            wallet: "0x123",
-            nickname: "LuckyUser9",
-            avatar: "🎉",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "9",
+            address: "0x123",
+            user: {
+                id: "9",
+                nickname: "LuckyUser9",
+                avatar: "🎉",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
         {
-            id: "10",
-            wallet: "0x123",
-            nickname: "FinalUser",
-            avatar: "🌟",
-            wager: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            walletId: "10",
+            address: "0x123",
+            user: {
+                id: "10",
+                nickname: "FinalUser",
+                avatar: "🌟",
+            },
+            totalWager: 0,
+            timeLastWager: new Date(),
         },
     ]
 
-    const players: User[] = [ ...wagers ];
+    const players: WagerRecord[] = [ ...wagers ];
     if (players.length < 10) {
         const remainingSlots = 10 - players.length;
         players.push(...wagers_static.slice(0, remainingSlots));
@@ -125,10 +158,10 @@ const Leaderboard = async () => {
           <div key={index} className="flex-1">
             <LeaderboardCard
               rank={index + 1}
-              username={player.nickname || ''}
-              timeAgo={player.updatedAt.toDateString()}
-              wager={player.wager.toString()}
-              avatarColors={player.avatar ? [player.avatar] : defaultAvatarColors}
+              username={player.user?.nickname || player.address || ''}
+              timeAgo={player.timeLastWager.toDateString()}
+              wager={player.totalWager.toString()}
+              avatarColors={player.user?.avatar ? [player.user.avatar] : defaultAvatarColors}
             />
           </div>
           )
