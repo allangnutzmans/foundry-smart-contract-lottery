@@ -3,9 +3,10 @@ import { useSession } from 'next-auth/react';
 import { api as trpc } from '@/lib/trpc';
 import { WagerHistory as WagerHistoryType } from '@prisma/client';
 import { signIn } from 'next-auth/react';
-import { WagerHistoryCard } from './WagerHistoryCard';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { WagerHistoryCardSkeleton } from '@/components/wallet-history-side/WagerHistoryCardSkeleton';
+import { WagerHistoryCard } from './WagerHistoryCard';
 
 export const WagerHistory = () => {
   const { data: session, status } = useSession();
@@ -37,17 +38,21 @@ export const WagerHistory = () => {
   return (
     <div className="mt-5">
       <h3 className="text-sm font-semibold mb-3">Your Wager History</h3>
-      {loadSkeleton ? (
-        Array.from({ length: 7 }).map((_, index) => (
-          <WagerHistoryCardSkeleton loading={isLoading} key={index} />
-        ))
-      ) : (
-          <div className="grid gap-3">
-            {wagerHistory?.map((wager: WagerHistoryType) => (
-              <WagerHistoryCard key={wager.id} wager={wager} />
-            ))}
-          </div>
-      )}
+      {/* TODO: Fix - In small screens scroll overflow the box and becomes hidden */}
+      <ScrollArea className='h-175'>
+        {loadSkeleton ? (
+          Array.from({ length: 7 }).map((_, index) => (
+            <WagerHistoryCardSkeleton loading={isLoading} key={index} />
+          ))
+        ) : (
+
+            <div className="grid gap-3">
+              {wagerHistory?.map((wager: WagerHistoryType) => (
+                <WagerHistoryCard key={wager.id} wager={wager} />
+              ))}
+            </div>
+        )}
+      </ScrollArea>
     </div>
   );
 }
