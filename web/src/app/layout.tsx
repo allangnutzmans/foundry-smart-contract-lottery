@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import AppSidebar from "@/components/AppSidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default async function RootLayout({
         <Providers session={session} cookie={cookie}>
           <AppSidebar>{children}</AppSidebar>
         </Providers>
+        <Toaster />
       </body>
     </html>
   );
