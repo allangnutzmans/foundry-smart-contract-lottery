@@ -205,4 +205,17 @@ contract Raffle is VRFConsumerBaseV2Plus {
   function getRecentWinner() external view returns (address) {
     return s_recentWinner;
   }
+
+// ADDED BY ME - TO BE REMOVED
+  function getNumberOfPlayers() external view returns (uint256) {
+    return s_players.length;
+  }
+function getTimeUntilNextDraw() external view returns (uint256) {
+    if (block.timestamp >= s_lastTimestamp + i_interval) {
+        return 0;
+    } else {
+        return (s_lastTimestamp + i_interval) - block.timestamp;
+    }
+}
+
 }
