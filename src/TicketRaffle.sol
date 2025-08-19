@@ -6,20 +6,20 @@ import { RaffleBase } from "./RaffleBase.sol";
 /**
  * MultiTicketRaffle
  *
- * Regras principais:
- * - Cada player pode comprar até MAX_TICKETS_PER_PLAYER (5) por round.
- * - Os preços por ticket crescem segundo PRICE_BPS (basis points).
- *   Ex: PRICE_BPS = [10000, 15000, 20000, 25000, 30000] (onde 10000 = 100%).
- * - Para calcular o custo total de n tickets (a partir do ticket k+1 até k+n)
- *   usamos um prefix-sum (PRICE_PREFIX_BPS) para computar soma em O(1).
+ * Main rules:
+ * - Each player can buy up to MAX_TICKETS_PER_PLAYER (5) per round.
+ * - Ticket prices increase according to PRICE_BPS (basis points).
+ *   Ex: PRICE_BPS = [10000, 15000, 20000, 25000, 30000] (where 10000 = 100%).
+ * - To calculate the total cost of n tickets (from ticket k+1 to k+n)
+ *   we use a prefix-sum (PRICE_PREFIX_BPS) to compute the sum in O(1).
  *
- * Observação sobre seleção do vencedor:
- * - Para manter compatibilidade com RaffleBase que provavelmente escolhe um índice
- *   de players (VRF -> index), armazenamos uma entrada por ticket em s_players
- *   (isto é, repetimos o address tantas vezes quantos tickets comprou).
- * - Essa repetição é segura porque max 5 entradas por tx por player; se quiser
- *   evitar crescimento de s_players e loops na seleção, veja as sugestões offchain
- *   no final do arquivo (Merkle / agregação / commit + serviço off-chain).
+ * Note on winner selection:
+ * - To maintain compatibility with RaffleBase which chooses a player index
+ *   (VRF -> index), we store one entry per ticket in s_players
+ *   (i.e., we repeat the address as many times as tickets purchased).
+ * - This repetition is safe because max 5 entries per tx per player; if you want
+ *   to avoid s_players growth and loops in selection, see offchain suggestions
+ *   at the end of the file (Merkle / aggregation / commit + off-chain service).
  */
 contract TicketRaffle is RaffleBase {
   uint8 public constant MAX_TICKETS_PER_PLAYER = 5;
@@ -46,7 +46,7 @@ contract TicketRaffle is RaffleBase {
     uint256 subscriptionId,
     uint32 callbackGasLimit
   ) RaffleBase(entranceFee, interval, vrfCoordinator, gasLane, subscriptionId, callbackGasLimit) {
-    // precompute prefix sums for BPS (executa só uma vez no deploy)
+    // Precompute prefix sums for BPS (executes only once on deploy)
     PRICE_PREFIX_BPS[0] = 0;
     for (uint256 i = 0; i < PRICE_BPS.length; i++) {
       PRICE_PREFIX_BPS[i + 1] = PRICE_PREFIX_BPS[i] + PRICE_BPS[i];
@@ -55,11 +55,11 @@ contract TicketRaffle is RaffleBase {
 
   /**
    * buyTickets
-   * - count: quantos tickets quer comprar agora (1..5)
-   * - valida que não ultrapassa MAX_TICKETS_PER_PLAYER por round
-   * - calcula o custo total em O(1) usando prefix sums
-   * - registra entradas no array de players (cada ticket = 1 push),
-   *   isso é necessário se o RaffleBase sorteia por índice em s_players.
+   * - count: how many tickets to buy now (1..5)
+   * - validates that it does not exceed MAX_TICKETS_PER_PLAYER per round
+   * - calculates the total cost in O(1) using prefix sums
+   * - registers entries in the players array (each ticket = 1 push),
+   *   this is necessary if RaffleBase draws by index in s_players.
    */
   function buyTickets(uint8 count) external payable onlyOpen {
     require(count >= 1, "Must buy at least 1 ticket");
@@ -69,26 +69,26 @@ contract TicketRaffle is RaffleBase {
     uint8 current = s_ticketsByRound[roundId][msg.sender];
     require(current + count <= MAX_TICKETS_PER_PLAYER, "Exceeds max tickets per player this round");
 
-    // calcula bps total: prefix[current + count] - prefix[current]
+    // calculate total bps: prefix[current + count] - prefix[current]
     uint32 bpsBefore = PRICE_PREFIX_BPS[uint256(current)];
     uint32 bpsAfter = PRICE_PREFIX_BPS[uint256(current + count)];
-    uint32 totalBps = bpsAfter - bpsBefore; // soma dos BPS para os tickets comprados agora
+    uint32 totalBps = bpsAfter - bpsBefore; // sum of BPS for tickets purchased now
 
-    // calcula totalFee = entranceFee * totalBps / 10000
+    // calculate totalFee = entranceFee * totalBps / 10000
     uint256 base = getEntranceFee();
     uint256 totalFee = (base * uint256(totalBps)) / 10000;
 
     require(msg.value == totalFee, "Incorrect ETH sent for tickets");
 
-    // registra tickets: adiciona uma entrada por ticket no array de players do base
-    // OBS: assumimos que RaffleBase tem `address[] internal s_players;`
-    // Se no seu RaffleBase o array interno tiver outro nome, ajuste aqui.
+    // Register tickets: add one entry per ticket to the base's players array
+    // NOTE: we assume RaffleBase has `address[] internal s_players;`
+    // If your RaffleBase has a different internal array name, adjust here.
     for (uint8 i = 0; i < count; i++) {
-      // push no players array do base para que a seleção por índice funcione
+      // push to base players array so index selection works
       s_players[s_roundId][s_playerCount++] = payable(msg.sender);
     }
 
-    // atualiza contador de tickets por jogador e total de tickets no round
+    // Update ticket counter per player and total tickets in the round
     s_ticketsByRound[roundId][msg.sender] = current + count;
     s_totalTicketsByRound[roundId] += count;
 
@@ -111,23 +111,23 @@ contract TicketRaffle is RaffleBase {
 
   /**
    * getNextTicketPriceForPlayer
-   * Retorna o preço (em wei) para o próximo ticket do player nesta rodada
+   * Returns the price (in wei) for the player's next ticket in this round
    */
   function getNextTicketPriceForPlayer(address player) public view returns (uint256) {
     uint256 roundId = getRoundId();
     uint8 current = s_ticketsByRound[roundId][player];
     require(current < MAX_TICKETS_PER_PLAYER, "No more tickets allowed");
-    uint16 bps = PRICE_BPS[uint256(current)]; // preço do próximo ticket
+    uint16 bps = PRICE_BPS[uint256(current)]; // price of the next ticket
     uint256 base = getEntranceFee();
     return (base * uint256(bps)) / 10000;
   }
 
-  /** 
-   * Overwrites simples para manter compatibilidade com a interface pública de SingleEntryRaffle.
-   * As funções abaixo redirecionam para a implementação do base.
+  /**
+   * Simple overwrites to maintain compatibility with SingleEntryRaffle public interface.
+   * The functions below redirect to the base implementation.
    */
   function enterRaffle() public payable override onlyOpen paysEnough {
-    // Para compatibilidade, comporta-se como comprar 1 ticket com a lógica de preços progressivos.
+    // For compatibility, behaves as buying 1 ticket with progressive pricing logic.
     // Calculate the correct price for the first ticket for this player
     uint256 roundId = getRoundId();
     uint8 current = s_ticketsByRound[roundId][msg.sender];
@@ -165,10 +165,10 @@ contract TicketRaffle is RaffleBase {
     super.fulfillRandomWords(requestId, randomWords);
   }
 
-  /* ---------- NOTE SOBRE LIMPEZA ENTRE ROUNDS ---------- */
-  // É importante que o RaffleBase faça o "reset" do array s_players e do estado
-  // quando um novo round começa. Aqui estamos armazenando por round: s_ticketsByRound[roundId],
-  // e s_totalTicketsByRound[roundId] para evitar confusão entre rounds.
-  // Se seu RaffleBase limpar s_players automaticamente entre rounds, está tudo certo.
+  /* ---------- NOTE ON CLEANUP BETWEEN ROUNDS ---------- */
+  // It's important that RaffleBase "resets" the s_players array and state
+  // when a new round starts. Here we are storing by round: s_ticketsByRound[roundId],
+  // and s_totalTicketsByRound[roundId] to avoid confusion between rounds.
+  // If your RaffleBase automatically clears s_players between rounds, then it's fine.
   /* ----------------------------------------------------- */
 }
