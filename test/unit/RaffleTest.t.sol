@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import { Test } from 'forge-std/Test.sol';
 import { Vm } from 'forge-std/Vm.sol';
 import { DeployRaffle } from '../../script/DeployRaffle.s.sol';
-import { Raffle } from '../../src/Raffle.sol';
+import { RaffleBase } from '../../src/RaffleBase.sol';
 import { HelperConfig, CodeConstants } from '../../script/HelperConfig.s.sol';
 import { VRFCoordinatorV2_5Mock } from '@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol';
 
@@ -12,7 +12,7 @@ contract RaffleTest is Test, CodeConstants {
   event RaffleEntered(address indexed player);
   event WinnerPicked(address indexed player);
 
-  Raffle public raffle;
+  RaffleBase public raffle;
   HelperConfig public helperConfig;
 
   address public PLAYER = makeAddr('Player');
@@ -27,7 +27,7 @@ contract RaffleTest is Test, CodeConstants {
 
   function setUp() external {
     DeployRaffle deployer = new DeployRaffle();
-    (raffle, helperConfig) = deployer.deployContract();
+    (raffle, helperConfig) = deployer.run();
     HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
     entranceFee = config.entranceFee;
     interval = config.interval;
@@ -48,25 +48,25 @@ contract RaffleTest is Test, CodeConstants {
   }
 
   function testConstructorInitializesState() public {
-    Raffle localRaffle = new Raffle(entranceFee, interval, vrfCoordinator, gasLane, subscriptionId, callbackGasLimit);
+    RaffleBase localRaffle = new RaffleBase(entranceFee, interval, vrfCoordinator, gasLane, subscriptionId, callbackGasLimit);
     assertEq(localRaffle.getEntranceFee(), entranceFee);
     assertEq(localRaffle.getInterval(), interval);
     assertEq(localRaffle.getVrfCoordinator(), vrfCoordinator);
     assertEq(localRaffle.getGasLane(), gasLane);
     assertEq(localRaffle.getSubscriptionId(), subscriptionId);
     assertEq(localRaffle.getCallbackGasLimit(), callbackGasLimit);
-    assertEq(uint(localRaffle.getRflleState()), 0); // Should be OPEN
+    assertEq(uint(localRaffle.getRaffleState()), 0); // Should be OPEN
   }
 
   function testRaffleInitializesOpen() public view {
-    assert(raffle.getRflleState() == Raffle.RaffleState.OPEN);
+    assert(raffle.getRaffleState() == RaffleBase.RaffleState.OPEN);
   }
 
   function testRaffleRevertsWhenYouDontPayEnough() public {
     // Arange
     vm.prank(PLAYER);
     // Act -Assert
-    vm.expectRevert(Raffle.Raffle__SendMoreToEnterRaffle.selector);
+    vm.expectRevert(RaffleBase.Raffle__SendMoreToEnterRaffle.selector);
     raffle.enterRaffle(); //Without sending any ether
   }
 
@@ -99,7 +99,7 @@ contract RaffleTest is Test, CodeConstants {
     vm.roll(block.number + 1); // rolls the block number to the next one - "good practice"
     // Act
     raffle.performUpkeep('');
-    vm.expectRevert(Raffle.Raffle_RaffleNotOpen.selector);
+    vm.expectRevert(RaffleBase.Raffle_RaffleNotOpen.selector);
     // Assert
     vm.prank(PLAYER);
     raffle.enterRaffle{ value: entranceFee }();
@@ -175,7 +175,7 @@ contract RaffleTest is Test, CodeConstants {
     // Arrange
     uint256 currentBalance = 0;
     uint256 numPlayers = 0;
-    Raffle.RaffleState raffleState = raffle.getRflleState();
+    RaffleBase.RaffleState raffleState = raffle.getRaffleState();
 
     vm.prank(PLAYER);
     raffle.enterRaffle{ value: entranceFee }();
@@ -183,7 +183,7 @@ contract RaffleTest is Test, CodeConstants {
     numPlayers = numPlayers + 1;
 
     // Act - Assert
-    vm.expectRevert(abi.encodeWithSelector(Raffle.Raffle_UpkeepNotNeeded.selector, currentBalance, numPlayers, raffleState));
+    vm.expectRevert(abi.encodeWithSelector(RaffleBase.Raffle_UpkeepNotNeeded.selector, currentBalance, numPlayers, raffleState));
     raffle.performUpkeep('');
   }
 
@@ -193,7 +193,7 @@ contract RaffleTest is Test, CodeConstants {
     vm.warp(block.timestamp + interval + 1);
     vm.roll(block.number + 1);
     raffle.performUpkeep('');
-    assertEq(uint(raffle.getRflleState()), 1); // CALCULATING
+    assertEq(uint(raffle.getRaffleState()), 1); // CALCULATING
   }
 
   modifier raffleEntered() {
@@ -212,7 +212,7 @@ contract RaffleTest is Test, CodeConstants {
     bytes32 requestId = entries[1].topics[1]; // First log comes from the vrf itself, so we take the second one
 
     // Assert
-    Raffle.RaffleState raffleState = raffle.getRflleState();
+    RaffleBase.RaffleState raffleState = raffle.getRaffleState();
     assert(uint256(requestId) > 0);
     assert(uint256(raffleState) == 1); // CALCULATING
   }
@@ -259,7 +259,7 @@ contract RaffleTest is Test, CodeConstants {
 
     // Assert
     address winner = raffle.getRecentWinner();
-    Raffle.RaffleState raffleState = raffle.getRflleState();
+    RaffleBase.RaffleState raffleState = raffle.getRaffleState();
     uint256 winnerBalance = winner.balance;
     uint256 endingTimestamp = raffle.getLastTimestamp();
     uint256 prize = entranceFee * (additionalEntrants + 1);
