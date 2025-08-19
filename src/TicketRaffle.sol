@@ -159,3 +159,4 @@ contract TicketRaffle is RaffleBase {
   function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
     super.fulfillRandomWords(requestId, randomWords);
   }
+}
