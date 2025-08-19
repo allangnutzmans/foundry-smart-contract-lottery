@@ -9,17 +9,12 @@ import { RaffleBase } from "./RaffleBase.sol";
  * Main rules:
  * - Each player can buy up to MAX_TICKETS_PER_PLAYER (5) per round.
  * - Ticket prices increase according to PRICE_BPS (basis points).
- *   Ex: PRICE_BPS = [10000, 15000, 20000, 25000, 30000] (where 10000 = 100%).
- * - To calculate the total cost of n tickets (from ticket k+1 to k+n)
- *   we use a prefix-sum (PRICE_PREFIX_BPS) to compute the sum in O(1).
+ *   PRICE_BPS = [10000, 15000, 20000, 25000, 30000] (where 10000 = 100%).
  *
  * Note on winner selection:
  * - To maintain compatibility with RaffleBase which chooses a player index
- *   (VRF -> index), we store one entry per ticket in s_players
+ *   (VRF -> index), we store one entry per ticket in s_players, max 5 tickets.
  *   (i.e., we repeat the address as many times as tickets purchased).
- * - This repetition is safe because max 5 entries per tx per player; if you want
- *   to avoid s_players growth and loops in selection, see offchain suggestions
- *   at the end of the file (Merkle / aggregation / commit + off-chain service).
  */
 contract TicketRaffle is RaffleBase {
   uint8 public constant MAX_TICKETS_PER_PLAYER = 5;
@@ -164,11 +159,3 @@ contract TicketRaffle is RaffleBase {
   function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
     super.fulfillRandomWords(requestId, randomWords);
   }
-
-  /* ---------- NOTE ON CLEANUP BETWEEN ROUNDS ---------- */
-  // It's important that RaffleBase "resets" the s_players array and state
-  // when a new round starts. Here we are storing by round: s_ticketsByRound[roundId],
-  // and s_totalTicketsByRound[roundId] to avoid confusion between rounds.
-  // If your RaffleBase automatically clears s_players between rounds, then it's fine.
-  /* ----------------------------------------------------- */
-}
