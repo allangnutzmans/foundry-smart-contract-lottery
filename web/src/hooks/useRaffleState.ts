@@ -1,9 +1,9 @@
 import { useReadContracts } from 'wagmi';
-import { useEffect, useState } from 'react';
-import { lotteryContract } from '@/lib/lotteryContract';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
 import { useQueryClient } from '@tanstack/react-query';
 
-function secondsToHms(seconds: number) {
+function secondsToTimeObject(seconds: number) {
   const hours = Math.floor(seconds / 3600);
   seconds %= 3600;
   const minutes = Math.floor(seconds / 60);
@@ -15,62 +15,73 @@ export type TimeObject = {
   hours: number;
   minutes: number;
   seconds: number;
-}
+};
 
 export enum RAFLLE_STATE {
   OPEN,
-  CALCULATING
+  CALCULATING,
 }
 
+/**
+ * Hook para gerenciar o estado da raffle
+ *
+ * IMPORTANTE: O countdown acontece DURANTE a raffle, não depois!
+ * - getTimeUntilNextDraw() retorna quanto tempo falta para ENCERRAR a raffle atual
+ * - Quando countdown = 0, a raffle pode ser encerrada (performUpkeep pode ser chamado)
+ * - O countdown começa a contar assim que a raffle é criada (s_lastTimestamp)
+ * - É baseado no intervalo configurado no contrato (i_interval)
+ *
+ * PROBLEMAS POTENCIAIS COM BLOCKCHAIN TIMER:
+ * - Latência de RPC (100ms-2s)
+ * - Falhas de rede temporárias
+ * - Dessincronização entre countdown local e blockchain
+ * - Rate limiting do provider
+ */
+
+//TODO
+// Não iniciar o countdown até que haja algum player na raffle
+// Ao final do countdown, caso hajam players na raffle, o estado da raffle deve ser CALCULATING independentemente do getRaffleState, pois pode haver um delay na atualização do estado da raffle
 export function useRaffleState() {
-  const queryClient = useQueryClient();
   const [timeLeft, setTimeLeft] = useState<TimeObject>({
     hours: 0,
     minutes: 0,
     seconds: 0,
   });
+
   const { data } = useReadContracts({
     contracts: [
-      { ...lotteryContract, functionName: 'getInterval' },
-      { ...lotteryContract, functionName: 'getLastTimestamp' },
-      { ...lotteryContract, functionName: 'getRflleState' },
+      {
+        address: singleEntryRaffle.address,
+        abi: singleEntryRaffle.abi,
+        functionName: 'getTimeUntilNextDraw',
+      },
+      {
+        address: singleEntryRaffle.address,
+        abi: singleEntryRaffle.abi,
+        functionName: 'getRaffleState',
+      },
     ],
+    query: {
+      refetchInterval: 5000, // refaz a leitura a cada 5 segundos
+    },
   });
-
-  const interval = data?.[0]?.result;
-  const lastTimestamp = data?.[1]?.result;
-  const raffleState = data?.[2]?.result as RAFLLE_STATE;
-
-  const isTimeRunning = timeLeft.hours + timeLeft.minutes + timeLeft.seconds > 0;
+  const raffleState = data?.[1]?.result as number | undefined;
 
   useEffect(() => {
-    if (!interval || !lastTimestamp) return;
+    if (!data?.[0]?.result) return;
 
-    const updateTimeLeft = () => {
-      const now = Math.floor(Date.now() / 1000);
-      const target = Number(lastTimestamp) + Number(interval);
-      let diff = target - now;
-      if (diff < 0) diff = 0;
-      setTimeLeft(secondsToHms(diff));
+    let totalSeconds = Number(data[0].result);
+    setTimeLeft(secondsToTimeObject(totalSeconds));
 
-      if (diff === 0) {
-        setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ['balance'] });
-          queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-        }, 4000); // delay for the contract make the transaction
+    const interval = setInterval(() => {
+      if (totalSeconds > 0) {
+        totalSeconds -= 1;
+        setTimeLeft(secondsToTimeObject(totalSeconds));
       }
+    }, 1000);
 
-    };
+    return () => clearInterval(interval);
+  }, [data]);
 
-    updateTimeLeft();
-    const timer = setInterval(updateTimeLeft, 1000);
-    return () => clearInterval(timer);
-  }, [interval, lastTimestamp, queryClient]);
-
-
-  return {
-    raffleState,
-    isTimeRunning,
-    timeLeft,
-  };
+  return { timeLeft, raffleState };
 }
