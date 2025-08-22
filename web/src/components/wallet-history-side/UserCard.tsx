@@ -6,18 +6,19 @@ import {
     DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
-import {ButtonGroup} from "@/components/buttonGroup";
-import {useAccount, useBalance, useDisconnect} from "wagmi";
+import {ButtonGroup} from "@/components/wallet-history-side/buttonGroup";
+import { useAccount, useBalance, useDisconnect, useEstimateFeesPerGas } from 'wagmi';
 import {emojiAvatarForAddress} from "@/lib/emojiAvatarForAddress";
 import {useAccountModal, useChainModal } from "@rainbow-me/rainbowkit";
 import {useEffect, useRef, useMemo} from "react";
-import { formatEther } from 'viem'
+import { formatEther, formatGwei } from 'viem'
 import { useSession } from 'next-auth/react';
 import Image from 'next/image'
 
 export function UserCard() {
     const { address } = useAccount(); 
     const { data: session } = useSession();
+    const { data: gasFee } = useEstimateFeesPerGas()
 
     const { data } = useBalance({
         address: address,
@@ -113,14 +114,14 @@ export function UserCard() {
                 </DropdownMenu>
               </div>
                 {/* Balance Row */}
-                <ButtonGroup />
+                <ButtonGroup balance={formattedBalance} symbol={data?.symbol} />
             </div>
 
-            {/* Rakeback */}
+            {/* Gas */}
             <div className="flex items-center justify-between text-xs text-gray-400 p-3 px-4 bg-card-foreground rounded-b-[15px]">
-                <span>Rakeback</span>
+                <span>Gas Fee</span>
                 <span className="rounded-md bg-green-900/40 px-2 py-1 text-green-400 font-semibold text-sm">
-                  🪙 0.001 {data?.symbol}
+                  🪙  {gasFee ? `${formatGwei(gasFee.maxPriorityFeePerGas).slice(0, 6)} - ${formatGwei(gasFee.maxFeePerGas).slice(0, 6)} Gwei` : '...'}
                 </span>
             </div>
         </div>
