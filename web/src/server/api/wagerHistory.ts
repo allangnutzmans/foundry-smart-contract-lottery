@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '@/server/trpc';
 import { prisma } from '@/server/prisma';
 
@@ -7,7 +7,18 @@ export const wagerHistoryRouter = createTRPCRouter({
     .input(z.object({ userId: z.string() }))
     .query(async ({ input }) => {
       return prisma.wagerHistory.findMany({
-        where: { userId: input.userId },
+        where: {
+          wallet: {
+            userId: input.userId,
+          },
+        },
+        include: {
+          wallet: {
+            select: {
+              address: true,
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     }),
@@ -15,7 +26,7 @@ export const wagerHistoryRouter = createTRPCRouter({
   create: publicProcedure
     .input(
       z.object({
-        userId: z.string(),
+        walletId: z.string(),
         wagerAmount: z.number(),
         prizeAmount: z.number(),
         endDate: z.date(),
@@ -24,11 +35,11 @@ export const wagerHistoryRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       return prisma.wagerHistory.create({
         data: {
-          userId: input.userId,
+          walletId: input.walletId,
           wagerAmount: input.wagerAmount,
           prizeAmount: input.prizeAmount,
           endDate: input.endDate,
         },
       });
     }),
-}); 
+});
