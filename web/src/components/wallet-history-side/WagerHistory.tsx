@@ -1,6 +1,6 @@
 'use client';
 import { useSession } from 'next-auth/react';
-import { api as trpc } from '@/lib/trpc';
+import { api } from '@/lib/trpc';
 import { WagerHistory as WagerHistoryType } from '@prisma/client';
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ export const WagerHistory = () => {
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
-  const { data: wagerHistory, isLoading, isError } = trpc.wagerHistory.getHistoryByUserId.useQuery(
+  const { data: wagerHistory, isLoading, isError } = api.wagerHistory.getHistoryByUserId.useQuery(
     { userId: userId || '' },
     {
       enabled: status === "authenticated" && !!userId,
