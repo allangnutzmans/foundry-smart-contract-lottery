@@ -58,7 +58,7 @@ contract HelperConfig is Script, CodeConstants {
     return
       NetworkConfig({
         entranceFee: 0.01 ether, //1e15
-        interval: 30, // secons
+        interval: 300, // 5 minutes (300 seconds)
         vrfCoordinator: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B,
         gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae, // 550  gwei Key Hash
         subscriptionId: 68719843580913932791199936901234181244887858877602550089395373984994913153091, // Subscription ID
@@ -85,7 +85,7 @@ contract HelperConfig is Script, CodeConstants {
     localNetworkConfig = NetworkConfig({
       subscriptionId: subscriptionId,
       gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, // doesn't really matter
-      interval: 30, // 30 seconds
+      interval: 300, // 5 minutes (300 seconds)
       entranceFee: 0.01 ether,
       callbackGasLimit: 500000, // 500,000 gas
       vrfCoordinator: address(vrfCoordinatorMock),
