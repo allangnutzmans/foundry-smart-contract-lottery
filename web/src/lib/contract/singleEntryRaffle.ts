@@ -1,5 +1,5 @@
 export const singleEntryRaffle = {
-  address: '0xE057fA5824533EBE325C0BB2abDeF0DF1fD36634' as const,
+  address: '0xAC9C96A851B8Ed80BbC1fc3F184278E0dCAE61f0' as const,
   abi: [
     {
       inputs: [
