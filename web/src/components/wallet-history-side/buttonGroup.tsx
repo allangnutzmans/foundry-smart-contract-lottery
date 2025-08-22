@@ -43,7 +43,7 @@ export function ButtonGroup({
                 )}
             >
         <span className="flex items-center gap-2">
-          🎖 <span>{balance} {symbol}</span>
+          🎖 <span>{Number(balance).toFixed(5)} {symbol}</span>
         </span>
             </ToggleGroup.Item>
 
