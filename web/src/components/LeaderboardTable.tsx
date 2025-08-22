@@ -4,14 +4,14 @@ import React from 'react';
 import { useReadContract } from 'wagmi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { formatTimeAgo } from '@/lib/date';
-import { lotteryContract } from '@/lib/lotteryContract';
+import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
 import { WagerRecord } from '@/components/Leaderboard';
 
 export default function LeaderboardTable({ players }: { players: WagerRecord[] }) {
     players = players.slice(3, 10);
     const { data: numberOfPlayers } = useReadContract({
-        abi: lotteryContract.abi,
-        address: lotteryContract.address as `0x${string}`,
+        abi: singleEntryRaffle.abi,
+        address: singleEntryRaffle.address,
         functionName: 'getNumberOfPlayers',
     })
     return (
@@ -29,8 +29,8 @@ export default function LeaderboardTable({ players }: { players: WagerRecord[] }
                             Wager
                         </TableHead>
                     </TableRow>
+                    <tr className="h-2 border-none"></tr>
                 </TableHeader>
-                <div className="h-2"></div>
                 <TableBody className="[&>tr:nth-child(even)]:bg-card [&>tr:nth-child(odd)]:bg-card-foreground/20 [&>tr:hover]:!bg-card-foreground/30">
                     {players.map((player, index) => (
                         <React.Fragment key={player.walletId}>
@@ -64,7 +64,7 @@ export default function LeaderboardTable({ players }: { players: WagerRecord[] }
                                     </div>
                                 </TableCell>
                             </TableRow>
-                            <div className="h-2"></div>
+                            <tr className="h-2 border-none"></tr>
                         </React.Fragment>
                     ))}
                 </TableBody>
