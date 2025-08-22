@@ -5,13 +5,17 @@ import { formatEther } from 'viem';
 import { EntranceFee } from '@/components/RaffleCard';
 import { useRouter } from 'next/navigation';
 import { EnterRaffleDD } from '@/components/enter-raffle/EnterRaffleDD';
+import CountUp from './RoundCount';
+import GradientText from '../ui/gradient-text';
 
 const RaffleCardNew = ({
  balance,
  entranceFee,
+ roundId
 }: {
   entranceFee?: EntranceFee;
   balance: UseBalanceReturnType['data'];
+  roundId: number;
 }) => {
   const router = useRouter();
 
@@ -54,6 +58,12 @@ const RaffleCardNew = ({
               How it Works
             </Button>
           </div>
+
+          <div className="flex items-center">
+              <div className="text-purple-200/50 text-8xl font-semibold tracking-wider pe-16">
+                    ROUND <CountUp to={roundId} className="count-up-text" />
+              </div>
+            </div>
 
           {/* Right Section - Countdown */}
           <div className="flex flex-col items-center space-y-3">
