@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
@@ -18,8 +18,18 @@ const config: Config = {
         'dark-text': '#FFFFFF',
         'dark-text-secondary': '#a0a0c0',
       },
+      keyframes: {
+        gradient: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
+      },
+      animation: {
+        gradient: 'gradient 8s linear infinite',
+      },
     },
   },
   plugins: [],
-}
-export default config
+};
+export default config;
