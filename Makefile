@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: all test clean deploy fund help install snapshot format anvil 
+.PHONY: all test clean deploy fund help install snapshot format anvil deployTicketRaffle deploySingleEntryRaffle
 
 DEFAULT_ANVIL_KEY := 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
@@ -41,6 +41,12 @@ endif
 
 deploy:
 	@forge script script/DeployRaffle.s.sol:DeployRaffle $(NETWORK_ARGS)
+
+deployTicketRaffle:
+	@forge script script/DeployTicketRaffle.s.sol:DeployTicketRaffle $(NETWORK_ARGS)
+
+deploySingleEntryRaffle:
+	@forge script script/DeploySingleEntryRaffle.s.sol:DeploySingleEntryRaffle $(NETWORK_ARGS)
 
 createSubscription:
 	@forge script script/Interactions.s.sol:CreateSubscription $(NETWORK_ARGS)
