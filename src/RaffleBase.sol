@@ -219,7 +219,7 @@ contract RaffleBase is VRFConsumerBaseV2Plus {
 
     function getRoundId() public view virtual returns (uint256) {
     return s_roundId;
-  }
+    }
 
     function getTimeUntilNextDraw() public view virtual returns (uint256) {
         if (block.timestamp >= s_lastTimestamp + i_interval) {
