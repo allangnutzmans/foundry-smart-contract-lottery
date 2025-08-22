@@ -1,5 +1,9 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/trpc';
+import { z } from 'zod';
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from '@/server/trpc';
 import { prisma } from '@/server/prisma';
 
 export const walletRouter = createTRPCRouter({
@@ -22,8 +26,8 @@ export const walletRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return prisma.wallet.findUnique({
         where: { address: input.address.toLowerCase() },
-    })
-  }),
+      });
+    }),
 
   getTop10Wagers: publicProcedure.query(async () => {
     const today = new Date();
@@ -37,6 +41,9 @@ export const walletRouter = createTRPCRouter({
       },
       _sum: {
         wagerAmount: true,
+      },
+      _max: {
+        createdAt: true,
       },
       orderBy: {
         _sum: {
@@ -72,6 +79,7 @@ export const walletRouter = createTRPCRouter({
         totalWager: top._sum.wagerAmount ?? 0,
         user: wallet?.user ?? null,
         address: wallet?.address ?? null,
+        timeLastWager: top._max.createdAt ?? new Date(),
       };
     });
   }),
