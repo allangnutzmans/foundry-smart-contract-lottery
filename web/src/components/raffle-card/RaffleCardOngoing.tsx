@@ -8,15 +8,18 @@ import { EntranceFee } from '@/components/RaffleCard';
 import { type UseBalanceReturnType } from 'wagmi'
 import { formatEther } from 'viem';
 import { TimeObject } from '@/hooks/useRaffleState';
+import CountUp from '@/components/ui/counter-up';
 
 const RaffleCardOngoing = ({
   timeLeft,
   entranceFee,
-  balance
+  balance,
+  roundId
 }: {
   timeLeft: TimeObject;
   entranceFee?: EntranceFee;
   balance: UseBalanceReturnType['data']
+  roundId: number
 }) => {
   const formattedBalance = balance?.value ? formatEther(balance.value) : '0';
   const formattedFee = entranceFee?.value ? formatEther(entranceFee.value) : '0';
@@ -58,6 +61,12 @@ const RaffleCardOngoing = ({
             <Button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-purple-500/25">
               How it Works
             </Button>
+          </div>
+
+          <div className="flex items-center">
+            <div className="text-purple-200/50 text-8xl font-semibold tracking-wider pe-16">
+              ROUND <CountUp to={roundId} className="count-up-text" />
+            </div>
           </div>
           
           {/* Right Section - Countdown */}
