@@ -22,6 +22,16 @@ export const WagerHistoryCard: React.FC<WagerHistoryCardProps> = ({ wager }) => 
             <span className="text-gray-400 text-sm">End Date:</span>
             <span className="font-semibold text-white">{formatTimeAgo(wager.endDate.toISOString())}</span>
           </div>
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-400 text-sm">Wallet:</span>
+            <span className="font-semibold text-white">
+            {
+                wager.wallet.address ? 
+                `${wager.wallet.address.slice(0, 7)}...${wager.wallet.address.slice(-7)}` 
+                : ''
+            }
+            </span>
+          </div>
         </div>
       </div>
     </div>
