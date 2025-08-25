@@ -7,6 +7,7 @@ import { SessionProvider } from "next-auth/react";
 import { api, client } from "@/lib/trpc";
 import { rainbowkitConfig } from "@/lib/rainbowkitConfig";
 import { getRainbowKitTheme } from "@/config/rainbowkitTheme";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import type { Session } from 'next-auth';
 
 type Props = {
@@ -27,7 +28,9 @@ export default function Providers({ children , cookie, session }: Props) {
                       theme={theme}
                   >
                     <SessionProvider session={session}>
-                      {children}
+                      <NotificationProvider>
+                        {children}
+                      </NotificationProvider>
                     </SessionProvider>
                   </RainbowKitProvider>
               </api.Provider>
