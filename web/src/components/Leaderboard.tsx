@@ -1,8 +1,11 @@
+'use client';
+
 import React from 'react';
 import LeaderboardCard from './LeaderboardCard';
 import LeaderboardTable from './LeaderboardTable';
-import { appRouter } from '@/server/api/_root'; // Import the server router
-import { createTRPCContext } from '@/server/trpc';
+import { api } from '@/lib/trpc';
+import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
+import { useWatchContractEvent } from 'wagmi';
 
 export type WagerRecord = {
   walletId: string,
@@ -11,29 +14,47 @@ export type WagerRecord = {
   user:
     {
       id: string,
-      nickname: string | null,
+      name: string | null,
       avatar: string | null,
+      image?: string | null,
     } | null,
   timeLastWager: Date,
+  roundId?: number,
 }
 
-const Leaderboard = async () => {
-
+const Leaderboard = () => {
     const defaultAvatarColors = ["#a855f7", "#ec4899", "#3b82f6"];
 
-    // Create a tRPC caller for server-side calls
-    const caller = appRouter.createCaller(await createTRPCContext({ req: new Request("http://localhost") }));
+    const { data: wagers = [], refetch } = api.wallet.getTop10Wagers.useQuery();
 
-    // Directly call the tRPC procedure on the server
-    const wagers: WagerRecord[] = await caller.wallet.getTop10Wagers();
-    console.log(wagers)
+    
+    useWatchContractEvent({
+        address: singleEntryRaffle.address,
+        abi: singleEntryRaffle.abi,
+        eventName: 'RaffleEntered',
+        onLogs() {
+            refetch();
+        },
+    });
+
+    // Listener para evento WinnerPicked
+    useWatchContractEvent({
+        address: singleEntryRaffle.address,
+        abi: singleEntryRaffle.abi,
+        eventName: 'WinnerPicked',
+        onLogs() {
+            refetch();
+        },
+    });
+    
+    
     const wagers_static: WagerRecord[] = [
         {
             walletId: "1",
             address: "0x123",
             user: {
                 id: "1",
-                nickname: "dingzhexiong",
+                name: "dingzhexiong",
                 avatar: "🎮",
             },
             totalWager: 0,
@@ -44,7 +65,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "2",
-                nickname: "fanjiezhi",
+                name: "fanjiezhi",
                 avatar: "🎯",
             },
             totalWager: 0,
@@ -55,7 +76,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "3",
-                nickname: "xaur.eth",
+                name: "xaur.eth",
                 avatar: "🎲",
             },
             totalWager: 0,
@@ -66,7 +87,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "4",
-                nickname: "empe_0",
+                name: "empe_0",
                 avatar: "🎨",
             },
             totalWager: 0,
@@ -77,7 +98,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "5",
-                nickname: "quazawer",
+                name: "quazawer",
                 avatar: "",
             },
             totalWager: 0,
@@ -88,7 +109,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "6",
-                nickname: "Vaxziz",
+                name: "Vaxziz",
                 avatar: "🎭",
             },
             totalWager: 0,
@@ -99,7 +120,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "7",
-                nickname: "Cheng_qt",
+                name: "Cheng_qt",
                 avatar: "🎸",
             },
             totalWager: 0,
@@ -110,7 +131,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "8",
-                nickname: "LuckyUser8",
+                name: "LuckyUser8",
                 avatar: "🍀",
             },
             totalWager: 0,
@@ -121,7 +142,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "9",
-                nickname: "LuckyUser9",
+                name: "LuckyUser9",
                 avatar: "🎉",
             },
             totalWager: 0,
@@ -132,7 +153,7 @@ const Leaderboard = async () => {
             address: "0x123",
             user: {
                 id: "10",
-                nickname: "FinalUser",
+                name: "FinalUser",
                 avatar: "🌟",
             },
             totalWager: 0,
@@ -150,7 +171,6 @@ const Leaderboard = async () => {
     <div className="space-y-3">
       {/* Title */}
       <h2 className="text-xl font-bold text-white">Leaderboard</h2>
-      
       {/* Cards Container */}
       <div className="flex space-x-4">
         {players?.map((player, index) => (
@@ -158,10 +178,12 @@ const Leaderboard = async () => {
           <div key={index} className="flex-1">
             <LeaderboardCard
               rank={index + 1}
-              username={player.user?.nickname || player.address || ''}
-              timeAgo={player.timeLastWager.toDateString()}
+              username={player.user?.name || player.address || ''}
+              timeAgo={player.timeLastWager.toISOString()}
               wager={player.totalWager.toString()}
-              avatarColors={player.user?.avatar ? [player.user.avatar] : defaultAvatarColors}
+              avatarEmoji={player.user?.avatar || (player.user?.name ? player.user.name[0].toUpperCase() : '')}
+              avatarImage={player.user?.image || undefined}
+              avatarColors={defaultAvatarColors}
             />
           </div>
           )
