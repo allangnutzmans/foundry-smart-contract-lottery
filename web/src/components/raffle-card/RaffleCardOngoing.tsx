@@ -3,12 +3,12 @@
 import React from 'react';
 
 import {Coins} from "lucide-react";
-import {Button} from "@/components/ui/button";
-import { EntranceFee } from '@/components/RaffleCard';
 import { type UseBalanceReturnType } from 'wagmi'
 import { formatEther } from 'viem';
 import { TimeObject } from '@/hooks/useRaffleState';
 import CountUp from '@/components/ui/counter-up';
+import { EnterRaffleDD } from '../enter-raffle/EnterRaffleDD';
+import { EntranceFee } from '@/components/raffle-card/RaffleCard';
 
 const RaffleCardOngoing = ({
   timeLeft,
@@ -51,16 +51,18 @@ const RaffleCardOngoing = ({
               {/* Price Info */}
               <div className="space-y-1">
                 <h2 className="text-3xl font-bold text-white tracking-wide">{formattedBalance} {balance?.symbol}</h2>
-                <span className="text-purple-200 text-sm font-medium">Raffle Price</span>
-                {/*<p className="text-purple-200 text-sm font-medium">Entrance Fee: {entranceFee} {currency}</p>*/}
+                <span className="text-purple-200 text-sm font-medium">Raffle Prize</span>
+                {/*TODO FIX THE ENTRANCE FEE HERE*/}
+                {/*<p className="text-purple-200 text-sm font-medium">Entrance Fee: {entranceFee.value.toString()} {entranceFee.symbol.toString()}</p>*/}
               </div>
             </div>
 
             
             {/* Button */}
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-purple-500/25">
-              How it Works
-            </Button>
+            {/* Enter Raffle */}
+            <div className="flex space-x-[0.1em]">
+              <EnterRaffleDD />
+            </div>
           </div>
 
           <div className="flex items-center">
@@ -72,7 +74,7 @@ const RaffleCardOngoing = ({
           {/* Right Section - Countdown */}
           <div className="flex flex-col items-center space-y-3">
             <div className="text-purple-200 text-sm font-semibold tracking-wider">
-              RESETS IN
+              PRIZE IN
             </div>
             
             {/* Countdown Timer */}
