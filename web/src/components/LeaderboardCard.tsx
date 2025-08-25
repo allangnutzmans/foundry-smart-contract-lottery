@@ -1,15 +1,18 @@
 import React from 'react';
 import { Coins } from 'lucide-react'
 import { formatTimeAgo } from '@/lib/date';
+import Image from 'next/image'; // Import the Image component
 interface LeaderboardCardProps {
   rank: number;
   username: string;
-  timeAgo: string; // Changed to string as it comes from API as ISO string
+  timeAgo: string;
   wager: string;
-  avatarColors: string[];
+  avatarColors?: string[];
+  avatarEmoji?: string;
+  avatarImage?: string;
 }
 
-const LeaderboardCard = ({ rank, username, timeAgo, wager, avatarColors }: LeaderboardCardProps) => {
+const LeaderboardCard = ({ rank, username, timeAgo, wager, avatarColors, avatarEmoji, avatarImage }: LeaderboardCardProps) => {
   const getRankBadge = (rank: number) => {
     switch (rank) {
       case 1:
@@ -34,12 +37,26 @@ const LeaderboardCard = ({ rank, username, timeAgo, wager, avatarColors }: Leade
       <div className="bg-card-foreground/80 backdrop-blur-sm rounded-xl p-4 border border-card-foreground/50 shadow-lg">
         <div className="flex items-center space-x-3">
           {/* Avatar */}
-          <div 
-            className="w-10 h-10 rounded-full flex-shrink-0"
-            style={{
-              background: `linear-gradient(45deg, ${avatarColors[0]}, ${avatarColors[1]}, ${avatarColors[2]})`
-            }}
-          />
+          {
+            avatarImage ? (
+              <Image
+                src={avatarImage}
+                alt="User Avatar"
+                width={40} // Specify width
+                height={40} // Specify height
+                className="w-10 h-10 rounded-full flex-shrink-0"
+              />
+            ) : (
+              <div 
+                className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-xl"
+                style={{
+                  background:`linear-gradient(45deg, ${avatarColors?.[0] || "#a855f7"}, ${avatarColors?.[1] || "#ec4899"}, ${avatarColors?.[2] || "#3b82f6"})`
+                }}
+              >
+                {avatarEmoji || (username ? username[0].toUpperCase() : '')}
+              </div>
+            )
+          }
           
           {/* Username */}
           <div className="flex-1">
