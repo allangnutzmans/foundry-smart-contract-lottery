@@ -22,7 +22,7 @@ export const walletRouter = createTRPCRouter({
     }),
 
   getByAddress: publicProcedure
-    .input(z.object({ address: z.string().startsWith("0x") }))
+    .input(z.object({ address: z.string().startsWith('0x') }))
     .query(async ({ input }) => {
       return prisma.wallet.findUnique({
         where: { address: input.address.toLowerCase() },
@@ -30,14 +30,33 @@ export const walletRouter = createTRPCRouter({
     }),
 
   getTop10Wagers: publicProcedure.query(async () => {
-    const today = new Date();
+    // Get the active round
+    let currentRound = await prisma.raffleRound.findFirst({
+      where: {
+        endedAt: null, // Round still active - TODO FIX THIS, now the contract upserts the ended at, so compare with the date or something like this
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
+    // No active round, get the last round
+    if (!currentRound) {
+      currentRound = await prisma.raffleRound.findFirst({
+        where: {
+          endedAt: { not: null },
+        },
+        orderBy: { endedAt: 'desc' },
+      });
+    }
+
+    if (!currentRound) {
+      return [];
+    }
+
+    // Agrupa as apostas do round atual por wallet
     const topWallets = await prisma.wagerHistory.groupBy({
       by: ['walletId'],
       where: {
-        endDate: {
-          gte: today,
-        },
+        raffleRoundId: currentRound.id,
       },
       _sum: {
         wagerAmount: true,
@@ -63,8 +82,9 @@ export const walletRouter = createTRPCRouter({
         user: {
           select: {
             id: true,
-            nickname: true,
+            name: true,
             avatar: true,
+            image: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -80,10 +100,10 @@ export const walletRouter = createTRPCRouter({
         user: wallet?.user ?? null,
         address: wallet?.address ?? null,
         timeLastWager: top._max.createdAt ?? new Date(),
+        roundId: currentRound.roundId, // Include round info
       };
     });
   }),
-
   connectWallet: protectedProcedure
     .input(z.object({ wallet: z.string().startsWith("0x") }))
     .mutation(async ({ ctx, input }) => {
