@@ -1,4 +1,4 @@
-import RaffleCard from "@/components/RaffleCard";
+import RaffleCard from "@/components/raffle-card/RaffleCard";
 import Leaderboard from "@/components/Leaderboard";
 import WalletWagerSide from '@/components/wallet-history-side/WalletWagerSide';
 
