@@ -1,12 +1,29 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { api } from '@/lib/trpc';
-import { WagerHistory as WagerHistoryType } from '@prisma/client';
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WagerHistoryCardSkeleton } from '@/components/wallet-history-side/WagerHistoryCardSkeleton';
 import { WagerHistoryCard } from './WagerHistoryCard';
+
+export interface WagerHistoryItem {
+  id: string;
+  walletId: string;
+  wagerAmount: number;
+  createdAt: Date;
+  raffleRoundId: string;
+  wallet: {
+    address: string;
+  };
+  raffleRound: {
+    roundId: number;
+    prizeAmount: number;
+    winner: string | null;
+    endedAt: Date | null;
+    createdAt: Date;
+  };
+}
 
 export const WagerHistory = () => {
   const { data: session, status } = useSession();
@@ -47,7 +64,7 @@ export const WagerHistory = () => {
         ) : (
 
             <div className="grid gap-3">
-              {wagerHistory?.map((wager: WagerHistoryType) => (
+              {wagerHistory?.map((wager: WagerHistoryItem) => (
                 <WagerHistoryCard key={wager.id} wager={wager} />
               ))}
             </div>
