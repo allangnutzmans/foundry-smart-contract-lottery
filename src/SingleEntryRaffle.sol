@@ -17,14 +17,20 @@ contract SingleEntryRaffle is RaffleBase {
     uint32 callbackGasLimit
   ) RaffleBase(entranceFee, interval, vrfCoordinator, gasLane, subscriptionId, callbackGasLimit) {}
 
-  function enterRaffle() public payable override onlyOpen paysEnough {
+function enterRaffle() public payable override onlyOpen paysEnough {
     if (s_hasEnteredInRound[msg.sender] == getRoundId()) {
-      revert Raffle__AlreadyEntered();
+        revert Raffle__AlreadyEntered();
+    }
+
+    if (s_playerCount == 0) {
+        s_lastTimestamp = block.timestamp;
+        emit RaffleStarted(s_roundId);
     }
 
     super.enterRaffle();
     s_hasEnteredInRound[msg.sender] = getRoundId();
-  }
+}
+
 
   function checkUpkeep(bytes memory checkData) public view override returns (bool upkeepNeeded, bytes memory /* performData */) {
     return super.checkUpkeep(checkData);

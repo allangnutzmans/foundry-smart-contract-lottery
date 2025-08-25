@@ -221,11 +221,17 @@ contract RaffleBase is VRFConsumerBaseV2Plus {
     return s_roundId;
     }
 
-    function getTimeUntilNextDraw() public view virtual returns (uint256) {
-        if (block.timestamp >= s_lastTimestamp + i_interval) {
-            return 0;
-        } else {
-            return (s_lastTimestamp + i_interval) - block.timestamp;
-        }
+function getTimeUntilNextDraw() public view virtual returns (uint256) {
+    // If there are no players, the timer hasn't started
+    if (s_playerCount == 0) {
+        return i_interval;
     }
+
+    if (block.timestamp >= s_lastTimestamp + i_interval) {
+        return 0;
+    } else {
+        return (s_lastTimestamp + i_interval) - block.timestamp;
+    }
+}
+
 }
