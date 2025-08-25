@@ -12,7 +12,7 @@ import {emojiAvatarForAddress} from "@/lib/emojiAvatarForAddress";
 import {useAccountModal, useChainModal } from "@rainbow-me/rainbowkit";
 import {useEffect, useRef, useMemo} from "react";
 import { formatEther, formatGwei } from 'viem'
-import { useSession } from 'next-auth/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Image from 'next/image'
 
 export function UserCard() {
@@ -79,7 +79,13 @@ export function UserCard() {
                         backgroundColor,
                         boxShadow: '0px 2px 2px 0px rgba(81, 98, 255, 0.20)',
                       }}
-                      onClick={async () => openAccountModal?.()}
+                      onClick={async () => {
+                        if (session?.user) {
+                          openAccountModal?.();
+                        } else {
+                          signIn('google');
+                        }
+                      }}
                     >
                       {emoji}
                     </div>
@@ -110,6 +116,11 @@ export function UserCard() {
                     <DropdownMenuItem onClick={() => disconnect()}>
                       Disconnect
                     </DropdownMenuItem>
+                    {session?.user && (
+                      <DropdownMenuItem onClick={() => signOut()}>
+                        Disconnect Google Account
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
