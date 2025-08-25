@@ -1,10 +1,10 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 interface GlareHoverProps {
   width?: string;
   height?: string;
   background?: string;
-  borderRadius?: string;
+  rounded?: string;
   borderColor?: string;
   children?: React.ReactNode;
   glareColor?: string;
@@ -13,6 +13,7 @@ interface GlareHoverProps {
   glareSize?: number;
   transitionDuration?: number;
   playOnce?: boolean;
+  playOnHover?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -20,9 +21,9 @@ interface GlareHoverProps {
 const GlareHover: React.FC<GlareHoverProps> = ({
   width = "500px",
   height = "500px",
-  background = "#000",
-  borderRadius = "10px",
-  borderColor = "#333",
+  background,
+  rounded,
+  borderColor = "",
   children,
   glareColor = "#ffffff",
   glareOpacity = 0.5,
@@ -30,6 +31,7 @@ const GlareHover: React.FC<GlareHoverProps> = ({
   glareSize = 250,
   transitionDuration = 650,
   playOnce = false,
+  playOnHover = true, // <- default true
   className = "",
   style = {},
 }) => {
@@ -55,6 +57,8 @@ const GlareHover: React.FC<GlareHoverProps> = ({
 
     el.style.transition = "none";
     el.style.backgroundPosition = "-100% -100%, 0 0";
+    // força reflow pra aplicar o reset antes da transição
+    void el.offsetWidth;
     el.style.transition = `${transitionDuration}ms ease`;
     el.style.backgroundPosition = "100% 100%, 0 0";
   };
@@ -72,6 +76,17 @@ const GlareHover: React.FC<GlareHoverProps> = ({
     }
   };
 
+  // Se playOnHover = false, dispara a animação automática
+  useEffect(() => {
+    if (!playOnHover) {
+      animateIn();
+      if (!playOnce) {
+        const interval = setInterval(animateIn, transitionDuration * 2);
+        return () => clearInterval(interval);
+      }
+    }
+  }, [playOnHover, playOnce, transitionDuration]);
+
   const overlayStyle: React.CSSProperties = {
     position: "absolute",
     inset: 0,
@@ -87,19 +102,19 @@ const GlareHover: React.FC<GlareHoverProps> = ({
 
   return (
     <div
-      className={`relative grid place-items-center overflow-hidden border cursor-pointer ${className}`}
+      className={`relative grid place-items-center overflow-hidden ${rounded ? `rounded-${rounded}` : ""} ${
+        playOnHover ? "cursor-pointer" : ""
+      } ${className}`}
       style={{
         width,
         height,
-        background,
-        borderRadius,
-        borderColor,
+        ...(background !== undefined ? { background } : {}),
         ...style,
       }}
-      onMouseEnter={animateIn}
-      onMouseLeave={animateOut}
+      onMouseEnter={playOnHover ? animateIn : undefined}
+      onMouseLeave={playOnHover ? animateOut : undefined}
     >
-      <div ref={overlayRef} style={overlayStyle} />
+      <div ref={overlayRef} style={overlayStyle} className="overflow-hidden w-full h-full" />
       {children}
     </div>
   );
