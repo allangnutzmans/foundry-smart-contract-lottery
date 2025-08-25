@@ -1,6 +1,7 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogClose,
@@ -9,23 +10,32 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { lotteryContract } from "@/lib/lotteryContract";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { singleEntryRaffle } from "@/lib/contract/singleEntryRaffle";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useBalance } from "wagmi";
 import { toast } from "sonner";
-import { api as trpc } from "@/lib/trpc";
-import { parseEther } from "viem";
-import { revalidateLeaderboard } from "@/app/actions";
+import { api } from "@/lib/trpc";
+import { parseEther, formatEther } from "viem";
+import { RAFLLE_STATE, useRaffleState } from "@/hooks/useRaffleState";
 
 const RAFFLE_PRICE = "0.01";
 
 export function EnterRaffleDD() {
   const [isOpen, setIsOpen] = useState(false);
+  const [wagerAmount, setWagerAmount] = useState(RAFFLE_PRICE);
   const { address } = useAccount();
+  const { raffleState, roundId } = useRaffleState();
+  const processedTxRef = useRef<string | null>(null);
 
-  const createWagerHistory = trpc.wagerHistory.create.useMutation();
-  const getWallet = trpc.wallet.getByAddress.useQuery(
+  const { refetch: refetchContractBalance } = useBalance({
+    address: singleEntryRaffle.address,
+  });
+
+  const utils = api.useUtils();
+  const createWagerHistory = api.wagerHistory.create.useMutation();
+  const upsertRaffleRound = api.wagerHistory.upsertRaffleRound.useMutation();
+  
+  const getWallet = api.wallet.getByAddress.useQuery(
     { address: address ?? "" },
     { enabled: Boolean(address) }
   );
@@ -33,90 +43,165 @@ export function EnterRaffleDD() {
   const { data: txHash, isPending, error, writeContract } = useWriteContract();
 
   // Confirmation Receipt
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed, isError } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
-  // Hash generated
   useEffect(() => {
-    if (txHash) {
+    if (isConfirming) {
       toast.info("Transaction sent! Waiting for confirmation...");
+    }
+  }, [isConfirming]);
+
+  useEffect(() => {
+    if (isConfirmed && txHash && processedTxRef.current !== txHash) {
+      processedTxRef.current = txHash;
+      toast.success('You have successfully entered the raffle!');
+  
+      const updateData = async () => {
+        const { data: freshBalance } = await refetchContractBalance();
+        const prizeAmount = freshBalance?.value
+          ? parseFloat(formatEther(freshBalance.value))
+          : 0;
+  
+        if (getWallet.data && roundId > 0) {
+          upsertRaffleRound.mutate(
+            {
+              roundId,
+              prizeAmount,
+            },
+            {
+              onSuccess: (round) => {
+                createWagerHistory.mutate(
+                  {
+                    walletId: getWallet.data!.id,
+                    wagerAmount: parseFloat(wagerAmount),
+                    raffleRoundId: round.id,
+                    
+                  },
+                  {
+                    onSuccess: () => {
+                      utils.wallet.getTop10Wagers.invalidate();
+                      utils.wagerHistory.getHistoryByUserId.invalidate();
+                      utils.wagerHistory.getCurrentRoundWallets.invalidate();
+                    },
+                  }
+                );
+              },
+            }
+          );
+        }
+      };
+  
+      updateData();
       setIsOpen(false);
     }
-  }, [txHash]);
+  }, [
+    isConfirmed,
+    txHash,
+    getWallet.data,
+    roundId,
+    refetchContractBalance,
+    createWagerHistory,
+    upsertRaffleRound,
+    utils,
+    wagerAmount,
+  ]);
+  
 
-  // quando confirmada -> sucesso
   useEffect(() => {
-    if (isConfirmed) {
-      toast.success('You have successfully entered the raffle!');
-      if (getWallet.data) {
-        createWagerHistory.mutate({
-          walletId: getWallet.data.id,
-          wagerAmount: parseFloat(RAFFLE_PRICE),
-          prizeAmount: 0, // TODO: calculate prize amount
-          endDate: new Date(), // TODO: replace with real raffle date (contract)
-        });
+    if (isError) {
+      let msg = error?.message ?? "Transaction failed";
+      if (msg.includes("Raffle__SendMoreToEnterRaffle")) {
+        msg = "You need to send more ETH to enter the raffle.";
       }
-      revalidateLeaderboard();
-    }
-  }, [isConfirmed, getWallet.data, createWagerHistory]);
-  useEffect(() => {
-    if (error) {
-      const msg = error?.message ?? "Transaction failed";
       toast.error("Transaction failed", { description: msg });
       setIsOpen(false);
     }
-  }, [error]);
+  }, [isError, error]);
 
-  const handleEnterRaffle = async () => {
+  const handleEnterRaffle = useCallback(async () => {
     try {
       writeContract({
-        address: lotteryContract.address,
-        abi: lotteryContract.abi,
+        address: singleEntryRaffle.address,
+        abi: singleEntryRaffle.abi,
         functionName: "enterRaffle",
-        value: parseEther(RAFFLE_PRICE),
+        value: parseEther(wagerAmount),
       });
     } catch (err: unknown) {
       toast.error("Transaction request failed", {
         description: (err as Error)?.message ?? String(err)
       });
     }
+  }, [writeContract, wagerAmount]);
+
+  const getButtonText = () => {
+    if (isConfirming) return 'JOINING...';
+    if (isConfirmed) return 'JOIN AGAIN';
+    if (raffleState === RAFLLE_STATE.CALCULATING) return 'CALCULATING...';
+    return 'JOIN RAFFLE';
+  };
+
+  const getButtonDisabled = () => {
+    if (raffleState !== RAFLLE_STATE.OPEN) return true;
+    if (isPending) return true;
+    if (isConfirming) return true;
+    return false;
+  };
+
+  const openDialog = () => {
+    if (!address) {
+        toast.error("Please connect your wallet to enter the raffle");
+        return;
+    }
+    setIsOpen(true);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {/* Button */}
+    <>
+      {/* Button */}
+      <Button
+        variant="secondary"
+        className="text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-purple-500/25"
+        onClick={openDialog}
+        disabled={getButtonDisabled()}
+      >
+        {getButtonText()}
+      </Button>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+            <DialogTitle>Enter Raffle</DialogTitle>
+            <DialogDescription>
+                Are you sure you want to enter the raffle? The entry fee is {wagerAmount} ETH.
+            </DialogDescription>
+            <div className="grid gap-4 py-4">
+                <Input
+                    id="wager"
+                    type="number"
+                    step="0.01"
+                    value={wagerAmount}
+                    onChange={(e) => setWagerAmount(e.target.value)}
+                    className="col-span-3"
+                />
+            </div>
+            </DialogHeader>
+
+            <DialogFooter>
+            <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+            </DialogClose>
+
             <Button
-              variant="secondary"
-              className="text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-purple-500/25"
-              onClick={() => handleEnterRaffle}
+                onClick={handleEnterRaffle}
+                disabled={isPending || isConfirming}
             >
-              {isConfirming ? 'JOINING...' : isConfirmed ? 'JOINED!' : 'JOIN RAFFLE'}
+                {isPending || isConfirming ? "Confirming..." : "Enter"}
             </Button>
-      </DialogTrigger>
-
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Enter Raffle</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to enter the raffle? The entry fee is {RAFFLE_PRICE} ETH.
-          </DialogDescription>
-        </DialogHeader>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-
-          <Button
-            onClick={handleEnterRaffle}
-            disabled={typeof writeContract !== "function" || isPending || isConfirming}
-          >
-            {isPending || isConfirming ? "Confirming..." : "Enter"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+            </DialogFooter>
+        </DialogContent>
     </Dialog>
+    </>
   );
 }
