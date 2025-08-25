@@ -2,11 +2,10 @@ import { Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type UseBalanceReturnType } from 'wagmi'
 import { formatEther } from 'viem';
-import { EntranceFee } from '@/components/RaffleCard';
+import { EntranceFee } from '@/components/raffle-card/RaffleCard';
 import { useRouter } from 'next/navigation';
 import { EnterRaffleDD } from '@/components/enter-raffle/EnterRaffleDD';
-import CountUp from './RoundCount';
-import GradientText from '../ui/gradient-text';
+import CountUp from '@/components/ui/counter-up';
 
 const RaffleCardNew = ({
  balance,
@@ -71,7 +70,7 @@ const RaffleCardNew = ({
               START HERE
             </div>
 
-            {/* Countdown Timer */}
+            {/* Enter Raffle */}
             <div className="flex space-x-[0.1em]">
               <EnterRaffleDD />
             </div>
