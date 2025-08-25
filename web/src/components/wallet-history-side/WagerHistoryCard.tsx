@@ -1,8 +1,7 @@
-import { WagerHistory as WagerHistoryType } from '@prisma/client';
-import { formatTimeAgo } from '@/lib/date';
+import { WagerHistoryItem } from './WagerHistory';
 
 interface WagerHistoryCardProps {
-  wager: WagerHistoryType; //TODO Add the the wallet address that made the wager (nthe
+  wager: WagerHistoryItem;
 }
 
 export const WagerHistoryCard: React.FC<WagerHistoryCardProps> = ({ wager }) => {
@@ -16,12 +15,19 @@ export const WagerHistoryCard: React.FC<WagerHistoryCardProps> = ({ wager }) => 
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-400 text-sm">Prize Amount:</span>
-            <span className="font-semibold text-white">{wager.prizeAmount} ETH</span>
+            <span className="font-semibold text-white">{wager.raffleRound.prizeAmount} ETH</span>
           </div>
           <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-400 text-sm">End Date:</span>
-            <span className="font-semibold text-white">{formatTimeAgo(wager.endDate.toISOString())}</span>
+            <span className="text-gray-400 text-sm">Round:</span>
+            <span className="font-semibold text-white">#{wager.raffleRound.roundId}</span>
           </div>
+{/*         TODO: Add round status - NOT WORKING  
+            <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-400 text-sm">Round Status:</span>
+            <span className="font-semibold text-white">
+              {wager.raffleRound.endedAt ? 'Finished' : 'Active'}
+            </span>
+          </div> */}
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-400 text-sm">Wallet:</span>
             <span className="font-semibold text-white">
