@@ -21,12 +21,15 @@ import {
 import {
   Wallet, Bell, BarChart3, Settings, Users, Gem, MessageSquare,
   Coins, Ticket, Gift, LayoutDashboard, ChevronDown,
+  Github, Linkedin, Instagram, Mail,
+  LinkedinIcon
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
+import { api } from "@/lib/trpc";
 
 export type sidebarItem = {
     header?: string;
@@ -101,6 +104,8 @@ export default function AppSidebar({
     { title: "Stats", icon: BarChart3, to: "#" },
     { title: "Settings", icon: Settings, to: "#" },
   ]);
+
+  const { data: totalWagers } = api.wagerHistory.getTotalWagers.useQuery();
 
   useEffect(() => {
     setMenuItems((prevItems) =>
@@ -223,13 +228,30 @@ export default function AppSidebar({
             <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
               <MessageSquare className="h-4 w-4" />
             </Button>
-            <Button variant="outline" className="flex-1 mx-2 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:mx-0">
-              Contact icons
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+              <a href="https://www.linkedin.com/in/allan-gnutzmans-5424191b5/" target="_blank" rel="noopener noreferrer">
+                <LinkedinIcon className="h-4 w-4" />
+              </a>
+            </Button>
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+              <a href="https://github.com/allangnutzmans/foundry-smart-contract-lottery" target="_blank" rel="noopener noreferrer">
+                <Github className="h-4 w-4" />
+              </a>
+            </Button>
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+                <Instagram className="h-4 w-4" />
+              </a>
+            </Button>
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+              <a href="mailto:allan.sgnutzmans@gmail.com">
+                <Mail className="h-4 w-4" />
+              </a>
             </Button>
           </div>
           <div className="flex items-center group-data-[collapsible=icon]:justify-center">
             <div className="h-2 w-2 bg-green-500 rounded-full mr-2 group-data-[collapsible=icon]:hidden"></div>
-            <span className="text-sm group-data-[collapsible=icon]:hidden">4,119 Bets Wagered</span>
+            <span className="text-sm group-data-[collapsible=icon]:hidden">{totalWagers ?? 0} Bets Wagered</span>
           </div>
         </SidebarFooter>
       </Sidebar>
