@@ -17,12 +17,16 @@ import { toast } from "sonner";
 import { api } from "@/lib/trpc";
 import { parseEther, formatEther } from "viem";
 import { RAFLLE_STATE, useRaffleState } from "@/hooks/useRaffleState";
+import { TxError } from '@/lib/contract/errorHandler';
+import { EntranceFee } from '../raffle-card/RaffleCard';
 
 const RAFFLE_PRICE = "0.01";
 
-export function EnterRaffleDD() {
+export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [wagerAmount, setWagerAmount] = useState(RAFFLE_PRICE);
+  const [wagerAmount, setWagerAmount] = useState(
+    entranceFee?.value ? formatEther(entranceFee.value) : RAFFLE_PRICE
+  );
   const { address } = useAccount();
   const { raffleState, roundId } = useRaffleState();
   const processedTxRef = useRef<string | null>(null);
@@ -40,16 +44,18 @@ export function EnterRaffleDD() {
     { enabled: Boolean(address) }
   );
 
-  const { data: txHash, isPending, error, writeContract } = useWriteContract();
+  const { data: txHash, isPending, writeContract, error: txError } = useWriteContract();
 
   // Confirmation Receipt
-  const { isLoading: isConfirming, isSuccess: isConfirmed, isError } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed, isError, error } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
+  // Add OK mesage to the toast
   useEffect(() => {
     if (isConfirming) {
       toast.info("Transaction sent! Waiting for confirmation...");
+      setIsOpen(false);
     }
   }, [isConfirming]);
 
@@ -57,8 +63,8 @@ export function EnterRaffleDD() {
     if (isConfirmed && txHash && processedTxRef.current !== txHash) {
       processedTxRef.current = txHash;
       toast.success('You have successfully entered the raffle!');
-  
       const updateData = async () => {
+        // refetch to correctly create the wager history
         const { data: freshBalance } = await refetchContractBalance();
         const prizeAmount = freshBalance?.value
           ? parseFloat(formatEther(freshBalance.value))
@@ -94,7 +100,6 @@ export function EnterRaffleDD() {
       };
   
       updateData();
-      setIsOpen(false);
     }
   }, [
     isConfirmed,
@@ -110,30 +115,26 @@ export function EnterRaffleDD() {
   
 
   useEffect(() => {
-    if (isError) {
-      let msg = error?.message ?? "Transaction failed";
-      if (msg.includes("Raffle__SendMoreToEnterRaffle")) {
-        msg = "You need to send more ETH to enter the raffle.";
-      }
-      toast.error("Transaction failed", { description: msg });
-      setIsOpen(false);
+    if (txError || (isError && error)) {
+      toast.error('Transaction failed', { description: 'Could not enter the raffle, maybe you already participated in this round?'}  )
     }
-  }, [isError, error]);
+  }, [txError, isError, error]);
+  
+  const handleEnterRaffle = useCallback(() => {
+    if (!address) return;
 
-  const handleEnterRaffle = useCallback(async () => {
-    try {
-      writeContract({
-        address: singleEntryRaffle.address,
-        abi: singleEntryRaffle.abi,
-        functionName: "enterRaffle",
-        value: parseEther(wagerAmount),
-      });
-    } catch (err: unknown) {
-      toast.error("Transaction request failed", {
-        description: (err as Error)?.message ?? String(err)
-      });
-    }
-  }, [writeContract, wagerAmount]);
+    if (Number(wagerAmount) < Number(formatEther(entranceFee?.value ?? 0n))) {
+        toast.error(TxError.Raffle__SendMoreToEnterRaffle);
+        return;
+      }
+  
+    writeContract({
+      address: singleEntryRaffle.address,
+      abi: singleEntryRaffle.abi,
+      functionName: 'enterRaffle',
+      value: parseEther(wagerAmount),
+    });
+  }, [writeContract, wagerAmount, address, entranceFee]);
 
   const getButtonText = () => {
     if (isConfirming) return 'JOINING...';
@@ -174,7 +175,7 @@ export function EnterRaffleDD() {
             <DialogHeader>
             <DialogTitle>Enter Raffle</DialogTitle>
             <DialogDescription>
-                Are you sure you want to enter the raffle? The entry fee is {wagerAmount} ETH.
+                Are you sure you want to enter the raffle? The entry fee is {entranceFee?.value ? formatEther(entranceFee.value) : RAFFLE_PRICE} {entranceFee?.symbol}.
             </DialogDescription>
             <div className="grid gap-4 py-4">
                 <Input
