@@ -1,5 +1,5 @@
 export const singleEntryRaffle = {
-  address: '0xAC9C96A851B8Ed80BbC1fc3F184278E0dCAE61f0' as const,
+  address: '0xD3911Cafc1996b28BADdb85B5Ef5a65123F6Df7E' as const,
   abi: [
     {
       inputs: [
@@ -145,7 +145,7 @@ export const singleEntryRaffle = {
       type: 'function',
     },
     {
-      inputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
+      inputs: [{ internalType: 'bytes', name: 'checkData', type: 'bytes' }],
       name: 'checkUpkeep',
       outputs: [
         { internalType: 'bool', name: 'upkeepNeeded', type: 'bool' },
@@ -211,6 +211,13 @@ export const singleEntryRaffle = {
       type: 'function',
     },
     {
+      inputs: [{ internalType: 'address', name: 'player', type: 'address' }],
+      name: 'getPlayerHasEntered',
+      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
       inputs: [],
       name: 'getRaffleState',
       outputs: [
@@ -266,7 +273,7 @@ export const singleEntryRaffle = {
       type: 'function',
     },
     {
-      inputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
+      inputs: [{ internalType: 'bytes', name: 'performData', type: 'bytes' }],
       name: 'performUpkeep',
       outputs: [],
       stateMutability: 'nonpayable',
