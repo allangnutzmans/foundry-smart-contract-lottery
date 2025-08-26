@@ -61,7 +61,7 @@ const RaffleCardOngoing = ({
             {/* Button */}
             {/* Enter Raffle */}
             <div className="flex space-x-[0.1em]">
-              <EnterRaffleDD />
+              <EnterRaffleDD entranceFee={entranceFee} />
             </div>
           </div>
 
