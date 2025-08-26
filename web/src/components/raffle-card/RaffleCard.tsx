@@ -30,7 +30,7 @@ const RaffleCard = () => {
     symbol,
   };
 
-  const  { timeLeft, raffleState, roundId, isWinner } = useRaffleState();
+  const  { timeLeft, raffleState, roundId, isWinner, winnerAddress, setWinnerAddress } = useRaffleState();
   const { data: balance, refetch: refetchBalance } = useBalance({
     address: singleEntryRaffle.address as Address,
   });
@@ -82,15 +82,26 @@ const RaffleCard = () => {
   const [showWinnerDialog, setShowWinnerDialog] = React.useState(false);
 
   useEffect(() => {
-    if (isWinner) {
+    if (isConnected && isWinner) {
       setShowWinnerDialog(true);
     }
-  }, [isWinner]);
+  }, [isConnected, isWinner]);
+
+  const handleDialogClose = () => {
+    setShowWinnerDialog(false);
+    setWinnerAddress(undefined);
+  };
 
   const renderRaffleContent = () => {
         if (!isConnected || balance?.value === BigInt(0)) {
             return (
                 <RaffleCardNew balance={balance} entranceFee={entranceFee} roundId={roundId} />
+            )
+        }
+
+        if (raffleState === RAFLLE_STATE.CALCULATING || winnerAddress) {
+            return (
+                <RaffleCardCalculating balance={balance} entranceFee={entranceFee} roundId={roundId} />
             )
         }
     
@@ -99,18 +110,13 @@ const RaffleCard = () => {
                 <RaffleCardOngoing balance={balance} timeLeft={timeLeft} entranceFee={entranceFee} roundId={roundId} />
             )
         }
-    
-        if (raffleState === RAFLLE_STATE.CALCULATING) {
-            return (
-                <RaffleCardCalculating balance={balance} entranceFee={entranceFee} roundId={roundId} />
-            )
-        }
     }
+    
 
     return (
         <div className="relative">
         {renderRaffleContent()}
-        <Dialog open={showWinnerDialog} onOpenChange={setShowWinnerDialog}>
+        <Dialog open={showWinnerDialog} onOpenChange={handleDialogClose}>
             <DialogContent className="p-0 bg-[#6f326a]">
                 <GlareHover
                     width="100%"
