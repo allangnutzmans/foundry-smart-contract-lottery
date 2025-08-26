@@ -21,3 +21,6 @@ docs/
 
 # zkSync
 zkout/
+
+# web
+node_modules/
