@@ -212,7 +212,7 @@ export default function AppSidebar({
         <SidebarHeader className="mt-2 h-20 flex items-center justify-between px-6 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:h-12">
           <div className="flex items-center space-x-2 group-data-[collapsible=icon]:ml-0 group-data-[collapsible=icon]:hidden">
             <Gem className="h-8 w-8 text-brand-purple" />
-            <h1 className="text-2xl font-bold">Raffle & NFT</h1>
+            <h1 className="text-2xl font-bold">The Raffle</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>
