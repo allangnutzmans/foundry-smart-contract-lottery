@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useState } from 'react';
-
 import {Coins} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import { EntranceFee } from './RaffleCard';
@@ -9,8 +7,8 @@ import { useReadContract, type UseBalanceReturnType } from 'wagmi'
 import { formatEther } from 'viem';
 
 import { singleEntryRaffle } from "@/lib/contract/singleEntryRaffle";
-import { useWatchContractEvent } from 'wagmi';
 import GlareHover from '../ui/glare-hover';
+import { useRaffleState } from '@/hooks/useRaffleState';
 
 const RaffleCardCalculating = ({
   balance,
@@ -27,23 +25,7 @@ const { data: numberOfPlayers } = useReadContract({
     functionName: 'getNumberOfPlayers',
 });
 
-  // TODO: UPDATE TO SHOW THE WINNER IN THE UI
-  const [winner, setWinner] = useState<string | null>(null);
-
-
-  // Listener para evento WinnerPicked
-  useWatchContractEvent({
-    address: singleEntryRaffle.address,
-    abi: singleEntryRaffle.abi,
-    eventName: 'WinnerPicked',
-    onLogs(logs) {
-      if (logs.length > 0) {
-        const log = logs[0] as { args?: { player?: string } }; // Type assertion para acessar args
-        const winnerAddress = log.args?.player as string;
-        setWinner(winnerAddress);
-      }
-    },
-  });
+  const { winnerAddress } = useRaffleState()
 
   // Total balance of contract
 
@@ -97,7 +79,7 @@ const { data: numberOfPlayers } = useReadContract({
 
           <div className="flex flex-col items-center space-y-4">
             <div className="text-purple-200/50 text-2xl font-semibold tracking-wider">
-              {winner ? 'WINNER:' : 'PICKING WINNER...'}
+              {winnerAddress ? `WINNER: ${winnerAddress}` : 'PICKING WINNER...'}
             </div>
             {numberOfPlayers?.toString() && (
               <div className="text-purple-200/30 text-sm">
