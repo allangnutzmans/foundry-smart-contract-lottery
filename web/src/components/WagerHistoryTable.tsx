@@ -91,7 +91,7 @@ export default function WagerHistoryTable() {
                     </TableHeader>
                     <tr className="h-2 border-none"></tr>
                     <TableBody className="[&>tr:nth-child(even)]:bg-card [&>tr:nth-child(odd)]:bg-card-foreground/20 [&>tr:hover]:!bg-card-foreground/30">
-                        {filteredHistory.map((entry) => (
+                        {filteredHistory.map((entry: (typeof filteredHistory)[number]) => (
                             <React.Fragment key={entry.id}>
                                 <TableRow
                                     className="border-none rounded-lg transition-colors first:rounded-t-lg last:rounded-b-lg my-2"
