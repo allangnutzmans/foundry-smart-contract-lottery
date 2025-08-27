@@ -1,11 +1,10 @@
-import { TRPCError, initTRPC } from "@trpc/server";
+import { TRPCError, initTRPC } from '@trpc/server';
 import { prisma } from '@/server/prisma';
-import superjson from "superjson";
+import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { getServerSession, Session } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { cookies, headers } from 'next/headers';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { authOptions } from '@/server/auth';
+import { headers } from 'next/headers';
 
 /**
  * 1. CONTEXT
@@ -18,7 +17,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
  */
 type CreateContextOptions = {
   session: Session | null;
-  headers: any;
+  headers: unknown;
 };
 
 /**
@@ -43,14 +42,9 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  * process every request that goes through your tRPC endpoint
  * @link https://trpc.io/docs/context
  */
-export const createTRPCContext = async  (opts: { req: Request }) => {
-  const cookieStore = await cookies();
+export const createTRPCContext = async () => {
+  //const cookieStore = await cookies();
   const headersList = await headers();
-
-  const cookie = cookieStore.get('next-auth.session-token')?.value ??
-    cookieStore.get('__Secure-next-auth.session-token')?.value ??
-    '';
-
 
   const session = await getServerSession(authOptions);
 
@@ -73,8 +67,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
     };
   },
@@ -108,7 +101,7 @@ export const publicProcedure = t.procedure;
  */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   if (!ctx.session?.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
   return next({
     ctx: {

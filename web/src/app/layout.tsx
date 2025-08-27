@@ -5,9 +5,10 @@ import '@rainbow-me/rainbowkit/styles.css';
 import Providers from "@/app/providers";
 import { headers } from "next/headers";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
 import AppSidebar from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { authOptions } from "@/server/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

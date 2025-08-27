@@ -59,6 +59,7 @@ export function useRaffleState() {
     abi: singleEntryRaffle.abi,
     eventName: 'RaffleEntered',
     onLogs(logs) {
+      // @ts-expect-error: logs[0].args is not typed by wagmi, because its defined in the contract
       const player = logs[0].args?.player as string;
       if (player !== address) {
         notify('info', '🎲 New player entered the raffle!');
@@ -72,6 +73,7 @@ export function useRaffleState() {
     abi: singleEntryRaffle.abi,
     eventName: 'WinnerPicked',
     onLogs(logs) {
+      // @ts-expect-error: logs[0].args is not typed by wagmi, because its defined in the contract
       const winner = logs[0].args?.player as string;
       setWinnerAddress(winner);
       if (winner !== address) {
