@@ -19,7 +19,7 @@ import {
   SidebarMenu,
 } from "@/components/ui/sidebar";
 import {
-  Wallet, Bell, BarChart3, Settings, Users, Gem, MessageSquare,
+  Wallet, Bell, BarChart3, Settings, Users,
   Coins, Ticket, Gift, LayoutDashboard, ChevronDown,
   Github, Instagram, Mail,
   LinkedinIcon,
