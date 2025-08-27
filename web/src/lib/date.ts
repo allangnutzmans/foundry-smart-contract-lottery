@@ -1,4 +1,4 @@
-import { Temporal } from 'temporal-polyfill'
+import { Temporal } from 'temporal-polyfill';
 
 export const formatTimeAgo = (isoDateString: string): string => {
   const now = Temporal.Instant.from(Temporal.Now.instant().toString());
@@ -21,5 +21,5 @@ export const formatTimeAgo = (isoDateString: string): string => {
   if (duration.minutes !== 0) {
     return `${-duration.minutes} mins ago`;
   }
-  return "Just now";
+  return 'Just now';
 };
