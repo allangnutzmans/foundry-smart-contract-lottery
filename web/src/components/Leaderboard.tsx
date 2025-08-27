@@ -26,7 +26,6 @@ const Leaderboard = () => {
     const defaultAvatarColors = ["#a855f7", "#ec4899", "#3b82f6"];
 
     const { data: wagers = [], refetch } = api.wallet.getTop10Wagers.useQuery();
-
     
     useWatchContractEvent({
         address: singleEntryRaffle.address,
