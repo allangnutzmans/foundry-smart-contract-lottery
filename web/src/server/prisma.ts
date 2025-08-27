@@ -1,7 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+// Fix for the deployment
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
 
-export const prisma = globalForPrisma.prisma || new PrismaClient();
+export const prisma =
+  global.prisma ||
+  new PrismaClient({
+    log: ['query'], // opcional, para debugging
+  });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// sempre cache em desenvolvimento
+if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
