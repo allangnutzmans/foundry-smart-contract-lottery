@@ -96,7 +96,7 @@ export const walletRouter = createTRPCRouter({
         user: wallet?.user ?? null,
         address: wallet?.address ?? null,
         timeLastWager: top._max.createdAt ?? new Date(),
-        roundId: currentRound.roundId, // Include round info
+        roundId: currentRound?.roundId ?? 0, // Include round info
       };
     });
   }),
