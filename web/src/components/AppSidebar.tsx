@@ -21,8 +21,10 @@ import {
 import {
   Wallet, Bell, BarChart3, Settings, Users, Gem, MessageSquare,
   Coins, Ticket, Gift, LayoutDashboard, ChevronDown,
-  Github, Linkedin, Instagram, Mail,
-  LinkedinIcon
+  Github, Instagram, Mail,
+  LinkedinIcon,
+  Club,
+  SquareAsterisk
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
@@ -61,29 +63,6 @@ export default function AppSidebar({
       icon: LayoutDashboard,
       to: "/",
     },
-    {
-      title: "NFT",
-      icon: Wallet,
-      to: "#",
-    },
-    {
-      title: "Casino",
-      icon: Coins,
-      to: "#",
-    },
-    {
-      title: "Sports",
-      icon: Ticket,
-      to: "#",
-    },
-    {
-      header: "Events",
-    },
-    {
-      title: "Promotions",
-      icon: Gift,
-      to: "#",
-    },
     { header: "Play" },
     {
       title: "Raffle",
@@ -96,13 +75,41 @@ export default function AppSidebar({
         { title: "Wager History", to: "/raffle/history", disabled: !isConnected },
       ],
     },
-    { header: "Account" },
-    { title: "Wallet", icon: Wallet, to: "#" },
-    { title: "Notifications", icon: Bell, to: "#" },
-    { title: "Profile", icon: Users, to: "#" },
-    { header: "Analytics" },
-    { title: "Stats", icon: BarChart3, to: "#" },
-    { title: "Settings", icon: Settings, to: "#" },
+      {
+        title: "Casino",
+        icon: Club,
+        to: "#",
+        disabled: true
+      },
+      {
+        title: "Sports",
+        icon: Ticket,
+        to: "#",
+        disabled: true
+      },
+      {
+        header: "Events",
+      },
+      {
+        title: "Promotions",
+        icon: Gift,
+        to: "#",
+        disabled: true
+      },
+      { header: "Account" },
+      { title: "Wallet", icon: Wallet, to: "#", disabled: true },
+      {
+        title: "NFT",
+        icon: SquareAsterisk,
+        to: "#",
+        disabled: true
+      },
+      { title: "Notifications", icon: Bell, to: "#", disabled: true },
+      { title: "Profile", icon: Users, to: "#", disabled: true },
+      { header: "Analytics" },
+      { title: "Stats", icon: BarChart3, to: "#", disabled: true },
+      { title: "Settings", icon: Settings, to: "#", disabled: true },
+
   ]);
 
   const { data: totalWagers } = api.wagerHistory.getTotalWagers.useQuery();
@@ -209,14 +216,13 @@ export default function AppSidebar({
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon" variant="inset">
-        <SidebarHeader className="mt-2 h-20 flex items-center justify-between px-6 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:h-12">
+        <SidebarHeader className="mt-6 h-20 flex items-center justify-between px-6 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:h-12">
           <div className="flex items-center space-x-2 group-data-[collapsible=icon]:ml-0 group-data-[collapsible=icon]:hidden">
-            <Gem className="h-8 w-8 text-brand-purple" />
+            <Coins className="h-8 w-8 text-brand-purple" />
             <h1 className="text-2xl font-bold">The Raffle</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarTrigger className="" />
           <ScrollArea className="h-full px-2">
             <SidebarMenu>
               {menuItems.map((item) => renderMenuItem(item))}
@@ -225,29 +231,27 @@ export default function AppSidebar({
         </SidebarContent>
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:p-2">
           <div className="flex items-center justify-between mb-4 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:space-y-2">
-            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
-              <MessageSquare className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:px-2">
               <a href="https://www.linkedin.com/in/allan-gnutzmans-5424191b5/" target="_blank" rel="noopener noreferrer">
                 <LinkedinIcon className="h-4 w-4" />
               </a>
             </Button>
-            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:px-2">
               <a href="https://github.com/allangnutzmans/foundry-smart-contract-lottery" target="_blank" rel="noopener noreferrer">
                 <Github className="h-4 w-4" />
               </a>
             </Button>
-            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:px-2">
               <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
                 <Instagram className="h-4 w-4" />
               </a>
             </Button>
-            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:w-full">
+            <Button variant="outline" size="icon" className="group-data-[collapsible=icon]:px-2">
               <a href="mailto:allan.sgnutzmans@gmail.com">
                 <Mail className="h-4 w-4" />
               </a>
             </Button>
+            <SidebarTrigger className="" />
           </div>
           <div className="flex items-center group-data-[collapsible=icon]:justify-center">
             <div className="h-2 w-2 bg-green-500 rounded-full mr-2 group-data-[collapsible=icon]:hidden"></div>
