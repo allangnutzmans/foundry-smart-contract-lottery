@@ -1,5 +1,5 @@
 import { useReadContracts, useWatchContractEvent } from 'wagmi';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useAccount } from 'wagmi';
@@ -31,7 +31,7 @@ export function useRaffleState() {
     seconds: 0,
   });
   const [winnerAddress, setWinnerAddress] = useState<string | undefined>(undefined);
-  const [lastContractTime, setLastContractTime] = useState<number>(0);
+  const targetRef = useRef<number | null>(null);
   const { address } = useAccount();
 
   // prettier-ignore
@@ -100,43 +100,46 @@ export function useRaffleState() {
     },
   });
 
+  const contractTimeSeconds = Number(data?.[0]?.result ?? 0);
+  const currentPlayers = Number(data?.[2]?.result ?? 0);
+
   useEffect(() => {
-    if (!data?.[0]?.result) return;
-
-    const contractTimeSeconds = Number(data[0].result);
-    const currentPlayers = Number(data?.[2]?.result || 0);
-
-    // If there are no players, always show 0
+    // If there are no players, always show 0 and clear target
     if (currentPlayers === 0) {
+      targetRef.current = null;
       setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
-      setLastContractTime(0);
       return;
     }
 
-    // Update the base time only when necessary (avoid unnecessary reset)
-    if (contractTimeSeconds !== lastContractTime) {
-      setLastContractTime(contractTimeSeconds);
+    // Create an absolute timestamp for when the raffle should finish
+    const now = Date.now();
+    const newTarget = now + contractTimeSeconds * 1000;
+
+    // Only update the target if it changed by more than ~1.5s to avoid jitter from refetches
+    if (!targetRef.current || Math.abs((targetRef.current || 0) - newTarget) > 1500) {
+      targetRef.current = newTarget;
+      // initialize shown time immediately
       setTimeLeft(secondsToTimeObject(contractTimeSeconds));
     }
 
-    if (contractTimeSeconds === 0 && currentPlayers > 0) {
-      handleRefetch(); // try to synchronize immediately with the chain
-    }
+    // tick uses the absolute target to compute remaining seconds
+    const tick = () => {
+      if (!targetRef.current) return;
+      const remaining = Math.max(0, Math.round((targetRef.current - Date.now()) / 1000));
+      setTimeLeft(secondsToTimeObject(remaining));
 
-    // Local countdown synchronized with the contract
-    let currentSeconds = contractTimeSeconds;
-    const interval = setInterval(() => {
-      if (currentSeconds > 0) {
-        currentSeconds -= 1;
-        setTimeLeft(secondsToTimeObject(currentSeconds));
-      } else {
-        // Stop at 0 and wait for the contract to update
-        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+      // if time is up and there are players, try to sync immediately
+      if (remaining === 0 && currentPlayers > 0) {
+        handleRefetch();
       }
-    }, 1000);
+    };
+
+    // do an immediate tick so UI updates without waiting 1s
+    tick();
+    const interval = setInterval(tick, 1000);
 
     return () => clearInterval(interval);
-  }, [data, lastContractTime, handleRefetch]);
+  }, [contractTimeSeconds, currentPlayers, handleRefetch]);
 
   const raffleState: RAFLLE_STATE = (() => {
     // If the chain already says CALCULATING
