@@ -131,7 +131,9 @@ const RaffleCard = () => {
                         </DialogHeader>
                         <div className="flex flex-col items-center">
                             <p className="text-white"></p>
+                          <picture>
                             <img src="/jackpot.gif" alt="Jackpot Trophy" className="mt-4" />
+                          </picture>
                         </div>
                     </div>
                 </GlareHover>

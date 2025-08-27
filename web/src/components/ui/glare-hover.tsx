@@ -1,11 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 interface GlareHoverProps {
   width?: string;
   height?: string;
   background?: string;
   rounded?: string;
-  borderColor?: string;
   children?: React.ReactNode;
   glareColor?: string;
   glareOpacity?: number;
@@ -23,7 +22,6 @@ const GlareHover: React.FC<GlareHoverProps> = ({
   height = "500px",
   background,
   rounded,
-  borderColor = "",
   children,
   glareColor = "#ffffff",
   glareOpacity = 0.5,
@@ -51,7 +49,7 @@ const GlareHover: React.FC<GlareHoverProps> = ({
 
   const overlayRef = useRef<HTMLDivElement | null>(null);
 
-  const animateIn = () => {
+  const animateIn = useCallback(() => {
     const el = overlayRef.current;
     if (!el) return;
 
@@ -61,7 +59,7 @@ const GlareHover: React.FC<GlareHoverProps> = ({
     void el.offsetWidth;
     el.style.transition = `${transitionDuration}ms ease`;
     el.style.backgroundPosition = "100% 100%, 0 0";
-  };
+  }, [transitionDuration]);
 
   const animateOut = () => {
     const el = overlayRef.current;
@@ -85,7 +83,7 @@ const GlareHover: React.FC<GlareHoverProps> = ({
         return () => clearInterval(interval);
       }
     }
-  }, [playOnHover, playOnce, transitionDuration]);
+  }, [animateIn, playOnHover, playOnce, transitionDuration]);
 
   const overlayStyle: React.CSSProperties = {
     position: "absolute",

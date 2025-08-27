@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Lottery",
+  title: "The Raffle",
   description: "The best on-chain lottery!",
 };
 

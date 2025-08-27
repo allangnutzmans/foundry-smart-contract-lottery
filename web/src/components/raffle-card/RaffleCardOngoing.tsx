@@ -22,7 +22,7 @@ const RaffleCardOngoing = ({
   roundId: number
 }) => {
   const formattedBalance = balance?.value ? formatEther(balance.value) : '0';
-  const formattedFee = entranceFee?.value ? formatEther(entranceFee.value) : '0';
+  //const formattedFee = entranceFee?.value ? formatEther(entranceFee.value) : '0';
 
   return (
     <div className="relative w-full h-40 rounded-2xl p-px shadow-xl overflow-hidden bg-gradient-to-r from-purple-900 via-purple-700 to-purple-500">
