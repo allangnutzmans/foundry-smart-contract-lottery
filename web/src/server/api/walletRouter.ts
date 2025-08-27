@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from '@/server/trpc';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/trpc';
 import { prisma } from '@/server/prisma';
 
 export const walletRouter = createTRPCRouter({
@@ -105,7 +101,7 @@ export const walletRouter = createTRPCRouter({
     });
   }),
   connectWallet: protectedProcedure
-    .input(z.object({ wallet: z.string().startsWith("0x") }))
+    .input(z.object({ wallet: z.string().startsWith('0x') }))
     .mutation(async ({ ctx, input }) => {
       const { user } = ctx.session;
 
@@ -114,7 +110,7 @@ export const walletRouter = createTRPCRouter({
       });
 
       if (existingWallet && existingWallet.userId !== user.id) {
-        throw new Error("This wallet is already linked with another user.");
+        throw new Error('This wallet is already linked with another user.');
       }
 
       if (existingWallet) return existingWallet;
