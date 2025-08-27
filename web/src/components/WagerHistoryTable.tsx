@@ -7,7 +7,6 @@ import { formatTimeAgo } from '@/lib/date';
 import { Skeleton } from './ui/skeleton';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { WagerHistoryEntry } from '@/server/api/routers/wagerHistory';
 
 export default function WagerHistoryTable() {
     const { data: session } = useSession();
@@ -24,7 +23,7 @@ export default function WagerHistoryTable() {
     const filteredHistory = useMemo(() => {
         if (!history) return [];
 
-        return history.filter((entry: WagerHistoryEntry) => {
+        return history.filter((entry: (typeof history)[number]) => {
             const matchesSearch =
                 entry.wagerAmount.toString().includes(search) ||
                 entry.raffleRound.prizeAmount.toString().includes(search) ||
