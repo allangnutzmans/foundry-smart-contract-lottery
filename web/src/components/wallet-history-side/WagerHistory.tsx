@@ -64,7 +64,7 @@ export const WagerHistory = () => {
         ) : (
 
             <div className="grid gap-3">
-              {wagerHistory?.map((wager: WagerHistoryItem) => (
+              {wagerHistory?.map((wager) => (
                 <WagerHistoryCard key={wager.id} wager={wager} />
               ))}
             </div>
