@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { formatTimeAgo } from '@/lib/date';
 import { Skeleton } from './ui/skeleton';
 
-//TODO PROBLABLY TRANSFORM IN SERVER COMPONENT - NOT BECAUS COULD BE ALOT OF RENDERINGS IN WAGER HISTORY ? invalidate
 export default function WagerHistoryTable() {
     const { data: session } = useSession();
     const userId = session?.user?.id;
@@ -39,7 +38,7 @@ export default function WagerHistoryTable() {
                         </TableHead>
                     </TableRow>
                 </TableHeader>
-                <div className="h-2"></div>
+                <tr className="h-2 border-none"></tr>
                 <TableBody className="[&>tr:nth-child(even)]:bg-card [&>tr:nth-child(odd)]:bg-card-foreground/20 [&>tr:hover]:!bg-card-foreground/30">
                     {history?.map((entry) => (
                         <React.Fragment key={entry.id}>
@@ -53,13 +52,13 @@ export default function WagerHistoryTable() {
                                     {entry.wagerAmount}
                                 </TableCell>
                                 <TableCell className="py-4 text-slate-300">
-                                    {entry.prizeAmount}
+                                    {entry.raffleRound.prizeAmount}
                                 </TableCell>
                                 <TableCell className="py-4 pr-6 text-right rounded-r-lg text-slate-300">
-                                    {formatTimeAgo(entry.endDate.toISOString())}
+                                    {entry.raffleRound.endedAt ? formatTimeAgo(entry.raffleRound.endedAt.toISOString()) : ''}
                                 </TableCell>
                             </TableRow>
-                            <div className="h-2"></div>
+                            <tr className="h-2 border-none"></tr>
                         </React.Fragment>
                     ))}
                 </TableBody>
@@ -80,7 +79,7 @@ function WagerHistoryTableSkeleton() {
               <TableHead className="text-slate-400 font-medium text-sm uppercase tracking-wider pr-6 text-right">End Date</TableHead>
             </TableRow>
           </TableHeader>
-          <div className="h-2"></div>
+          <tr className="h-2 border-none"></tr>
           <TableBody>
             {Array.from({ length: 5 }).map((_, index) => (
               <React.Fragment key={index}>
@@ -90,7 +89,7 @@ function WagerHistoryTableSkeleton() {
                   <TableCell className="py-4"><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell className="py-4 pr-6 text-right rounded-r-lg"><Skeleton className="h-4 w-24" /></TableCell>
                 </TableRow>
-                <div className="h-2"></div>
+                <tr className="h-2 border-none"></tr>
               </React.Fragment>
             ))}
           </TableBody>
