@@ -11,7 +11,7 @@ const supportedChains: Chain[] = [sepolia, bscTestnet, blastSepolia];
 export const rainbowkitConfig = getDefaultConfig({
     appName: 'WalletConnection',
     projectId,
-    chains: supportedChains as any,
+    chains: supportedChains as never,
     ssr: true,
     storage: createStorage({
         storage: cookieStorage,
