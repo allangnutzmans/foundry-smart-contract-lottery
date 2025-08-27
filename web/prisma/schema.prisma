@@ -19,33 +19,28 @@ model PingDummy {
 
 model User {
     id            String    @id @default(cuid())
-    name          String?
+    nickname      String?
+    avatar        String?
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
     email         String?   @unique
     emailVerified DateTime?
     image         String?
-
-    nickname String?
-    avatar   String?
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    wallets  Wallet[]
-    accounts Account[]
-    sessions Session[]
+    name          String?
+    accounts      Account[]
+    sessions      Session[]
+    wallets       Wallet[]
 }
 
 model Wallet {
-    id      String @id @default(cuid())
-    address String @unique
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
+    id           String         @id @default(cuid())
     userId       String?
-    user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-    wagerHistory WagerHistory[]
+    address      String         @unique
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
     raffleRounds RaffleRound[]
+    wagerHistory WagerHistory[]
+    user         User?          @relation(fields: [userId], references: [id])
 }
 
 model RaffleRound {
@@ -57,21 +52,18 @@ model RaffleRound {
     endedAt      DateTime?
     winner       String?
     winnerId     String?
-    winnerWallet Wallet?        @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+    winnerWallet Wallet?        @relation(fields: [winnerId], references: [id])
     wagerHistory WagerHistory[]
 }
 
 model WagerHistory {
-    id          String   @id @default(uuid())
-    walletId    String
-    wagerAmount Float
-    createdAt   DateTime @default(now())
-
-    // Relacionamento com wallet
-    wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
-
+    id            String      @id @default(uuid())
+    wagerAmount   Float
+    createdAt     DateTime    @default(now())
+    walletId      String
     raffleRoundId String
     raffleRound   RaffleRound @relation(fields: [raffleRoundId], references: [id], onDelete: Cascade)
+    wallet        Wallet      @relation(fields: [walletId], references: [id], onDelete: Cascade)
 }
 
 model Account {
@@ -87,8 +79,7 @@ model Account {
     scope             String?
     id_token          String?
     session_state     String?
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
 }
@@ -98,6 +89,5 @@ model Session {
     sessionToken String   @unique
     userId       String
     expires      DateTime
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
