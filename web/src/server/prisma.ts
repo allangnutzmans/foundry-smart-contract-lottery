@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 
 export const prisma: PrismaClient =
-  globalThis.prisma ??
+  global.prisma ??
   new PrismaClient({
     log: ['query'],
   });
 
 // Cache em desenvolvimento
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
