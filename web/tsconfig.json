@@ -37,6 +37,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.cjs",
+    "src/types/global.d.ts",
     "**/*.js",
     ".next/types/**/*.ts"
   ],
