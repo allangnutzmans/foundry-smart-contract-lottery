@@ -78,9 +78,9 @@ const RaffleCardCalculating = ({
               <div className="text-purple-200/50 text-2xl font-semibold tracking-wider">
                 {winnerAddress ? `WINNER: ${winnerAddress}` : 'PICKING WINNER...'}
               </div>
-              {numberOfPlayers && (
+              {numberOfPlayers !== undefined && (
                 <div className="text-purple-200/30 text-sm">
-                  {(numberOfPlayers as string)?.toString()} players
+                  {(numberOfPlayers as bigint).toString()} players
                 </div>
               )}
             </div>
