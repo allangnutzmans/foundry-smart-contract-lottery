@@ -80,7 +80,6 @@ export const walletRouter = createTRPCRouter({
       timeLastWager: Date;
       roundId: number;
     };
-
     const result: GetTop10WagersOutput[] = topWallets.map((top: TopWallet) => {
       const wallet = wallets.find((w: typeof wallets[number]) => w.id === top.walletId);
       return {
