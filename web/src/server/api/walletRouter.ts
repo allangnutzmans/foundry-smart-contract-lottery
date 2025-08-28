@@ -26,69 +26,38 @@ export const walletRouter = createTRPCRouter({
     }),
 
   getTop10Wagers: publicProcedure.query(async () => {
-    // Get the active round
-    let currentRound = await prisma.raffleRound.findFirst({
-      where: {
-        endedAt: null, // Round still active - TODO FIX THIS, now the contract upserts the ended at, so compare with the date or something like this
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    // No active round, get the last round
-    if (!currentRound) {
-      currentRound = await prisma.raffleRound.findFirst({
-        where: {
-          endedAt: { not: null },
-        },
-        orderBy: { endedAt: 'desc' },
-      });
-    }
+  const currentRound = await prisma.raffleRound.findFirst({
+    where: {
+      OR: [
+        { endedAt: null },           // active round
+        { endedAt: { not: null } },  // ended round
+      ],
+    },
+    orderBy: [
+      { endedAt: "desc" },           // priority to rounds recent ended rounds
+      { createdAt: "desc" },         // fallback to rounds recent open rounds
+    ],
+  });
 
     if (!currentRound) {
       return [];
     }
 
     const topWallets = await prisma.wagerHistory.groupBy({
-      by: ['walletId'],
-      where: {
-        raffleRoundId: currentRound.id,
-      },
-      _sum: {
-        wagerAmount: true,
-      },
-      _max: {
-        createdAt: true,
-      },
-      orderBy: {
-        _sum: {
-          wagerAmount: 'desc',
-        },
-      },
+      by: ["walletId"],
+      where: { raffleRoundId: currentRound.id },
+      _sum: { wagerAmount: true },
+      _max: { createdAt: true },
+      orderBy: { _sum: { wagerAmount: "desc" } },
       take: 10,
     });
 
-    const TopWalletSchema = z.object({
-      walletId: z.string(),
-      _sum: z.object({
-        wagerAmount: z.number().nullable(),
-      }),
-      _max: z.object({
-        createdAt: z.date().nullable(),
-      }),
-    });
+    type TopWallet = (typeof topWallets)[number];
 
-    // infer TS type from schema
-    type TopWallet = z.infer<typeof TopWalletSchema>;
-
-    const walletIds = topWallets.map((w) => {
-      TopWalletSchema.parse(w);
-      return w.walletId;
-    });
+    const walletIds = topWallets.map((w: TopWallet) => w.walletId);
 
     const wallets = await prisma.wallet.findMany({
-      where: {
-        id: { in: walletIds },
-      },
+      where: { id: { in: walletIds } },
       include: {
         user: {
           select: {
@@ -103,7 +72,16 @@ export const walletRouter = createTRPCRouter({
       },
     });
 
-    return topWallets.map((top: TopWallet) => {
+    type GetTop10WagersOutput = {
+      walletId: TopWallet["walletId"];
+      totalWager: number;
+      user: typeof wallets[number]["user"] | null;
+      address: string | null;
+      timeLastWager: Date;
+      roundId: number;
+    };
+
+    const result: GetTop10WagersOutput[] = topWallets.map((top: TopWallet) => {
       const wallet = wallets.find((w) => w.id === top.walletId);
       return {
         walletId: top.walletId,
@@ -111,9 +89,11 @@ export const walletRouter = createTRPCRouter({
         user: wallet?.user ?? null,
         address: wallet?.address ?? null,
         timeLastWager: top._max.createdAt ?? new Date(),
-        roundId: currentRound?.roundId ?? 0, // Include round info
+        roundId: currentRound?.roundId ?? 0,
       };
     });
+
+    return result;
   }),
   connectWallet: protectedProcedure
     .input(z.object({ wallet: z.string().startsWith('0x') }))
