@@ -67,7 +67,23 @@ export const walletRouter = createTRPCRouter({
       take: 10,
     });
 
-    const walletIds = topWallets.map((w) => w.walletId);
+    const TopWalletSchema = z.object({
+      walletId: z.string(),
+      _sum: z.object({
+        wagerAmount: z.number().nullable(),
+      }),
+      _max: z.object({
+        createdAt: z.date().nullable(),
+      }),
+    });
+
+    // infer TS type from schema
+    type TopWallet = z.infer<typeof TopWalletSchema>;
+
+    const walletIds = topWallets.map((w) => {
+      TopWalletSchema.parse(w);
+      return w.walletId;
+    });
 
     const wallets = await prisma.wallet.findMany({
       where: {
@@ -87,7 +103,7 @@ export const walletRouter = createTRPCRouter({
       },
     });
 
-    return topWallets.map((top) => {
+    return topWallets.map((top: TopWallet) => {
       const wallet = wallets.find((w) => w.id === top.walletId);
       return {
         walletId: top.walletId,
