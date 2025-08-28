@@ -59,6 +59,7 @@ export function useRaffleState() {
     abi: singleEntryRaffle.abi,
     eventName: 'RaffleEntered',
     onLogs(logs: unknown[]) {
+      // @ts-ignore
       const args = logs[0]?.args as { player?: string } | undefined;
       const player = args?.player;
       if (player !== address) {
@@ -73,6 +74,7 @@ export function useRaffleState() {
     abi: singleEntryRaffle.abi,
     eventName: 'WinnerPicked',
     onLogs(logs: unknown[]) {
+      // @ts-ignore
       const args = logs[0]?.args as { player?: string } | undefined;
       const winner = args?.player;
       setWinnerAddress(winner);
