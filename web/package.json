@@ -46,11 +46,12 @@
     "tailwind-merge": "^3.3.1",
     "temporal-polyfill": "^0.3.0",
     "typescript-eslint": "^8.41.0",
-    "viem": "^2.33.0",
-    "wagmi": "^2.16.0",
+    "viem": "^2.36.0",
+    "wagmi": "^2.16.8",
     "zod": "^4.0.10"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/eslint": "^8.56.10",
     "@types/node": "^20",
@@ -66,8 +67,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5",
-    "@eslint/eslintrc": "^3"
+    "typescript": "^5"
   },
   "engines": {
     "node": ">=18.18.0"

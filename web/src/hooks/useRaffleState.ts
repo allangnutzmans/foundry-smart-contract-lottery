@@ -3,7 +3,6 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useAccount } from 'wagmi';
-import { decodeEventLog } from 'viem';
 
 function secondsToTimeObject(seconds: number) {
   const hours = Math.floor(seconds / 3600);
@@ -51,31 +50,20 @@ export function useRaffleState() {
   const numberOfPlayers = Number(data?.[2]?.result || 0);
   const roundId = Number(data?.[3]?.result || 0);
 
-  // Callback to update data
+  // Callback para atualizar dados
   const handleRefetch = useCallback(() => refetch(), [refetch]);
 
-  // Event listeners for refetch - no local state modifications
+  // Event listeners apenas para refetch - sem modificar estados locais //
   useWatchContractEvent({
     address: singleEntryRaffle.address,
     abi: singleEntryRaffle.abi,
     eventName: 'RaffleEntered',
-    onLogs(logs) {
-      if (!logs[0]) return;
-
-      const decoded = decodeEventLog<typeof singleEntryRaffle.abi, 'RaffleEntered'>({
-        abi: singleEntryRaffle.abi,
-        eventName: 'RaffleEntered',
-        topics: logs[0].topics,
-        data: logs[0].data,
-      });
-
-      const args = decoded.args as { player: string };
-      const player = args.player;
-
+    onLogs(logs: unknown[]) {
+      const args = logs[0]?.args as { player?: string } | undefined;
+      const player = args?.player;
       if (player !== address) {
         notify('info', '🎲 New player entered the raffle!');
       }
-
       void handleRefetch();
     },
   });
@@ -84,24 +72,23 @@ export function useRaffleState() {
     address: singleEntryRaffle.address,
     abi: singleEntryRaffle.abi,
     eventName: 'WinnerPicked',
-    onLogs(logs) {
-      if (!logs[0]) return;
-
-      const decoded = decodeEventLog<typeof singleEntryRaffle.abi, 'WinnerPicked'>({
-        abi: singleEntryRaffle.abi,
-        eventName: 'WinnerPicked',
-        topics: logs[0].topics,
-        data: logs[0].data,
-      });
-
-      const args = decoded.args as { player: string };
-      const winner = args.player;
-
+    onLogs(logs: unknown[]) {
+      const args = logs[0]?.args as { player?: string } | undefined;
+      const winner = args?.player;
       setWinnerAddress(winner);
       if (winner !== address) {
         notify('success', `🏆 Winner chosen! Congratulations to ${winner}!`);
       }
+      void handleRefetch();
+    },
+  });
 
+  useWatchContractEvent({
+    address: singleEntryRaffle.address,
+    abi: singleEntryRaffle.abi,
+    eventName: 'RaffleStarted',
+    onLogs() {
+      notify('info', '🚀 New round started!');
       void handleRefetch();
     },
   });
