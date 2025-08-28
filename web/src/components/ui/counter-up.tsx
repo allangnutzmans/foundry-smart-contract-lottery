@@ -42,12 +42,13 @@ export default function CountUp({
   // Get number of decimal places in a number
   const getDecimalPlaces = (num: number): number => {
     const str = num.toString();
-    if (str.includes(".")) {
-      const decimals = str.split(".")[1];
-      if (parseInt(decimals) !== 0) {
-        return decimals.length;
-      }
+    const parts = str.split(".");
+    const decimals = parts[1]; // this could be undefined
+
+    if (decimals && parseInt(decimals) !== 0) {
+      return decimals.length;
     }
+
     return 0;
   };
 

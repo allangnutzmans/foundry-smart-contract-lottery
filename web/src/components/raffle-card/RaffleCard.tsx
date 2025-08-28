@@ -42,7 +42,7 @@ const RaffleCard = () => {
     eventName: 'RaffleEntered',
     onLogs(logs) {
       console.log('RaffleEntered - updating prize balance:', logs);
-      refetchBalance();
+      void refetchBalance();
     },
   });
 
@@ -52,14 +52,14 @@ const RaffleCard = () => {
     abi: singleEntryRaffle.abi,
     eventName: 'WinnerPicked',
     onLogs() {
-      refetchBalance();
+      void refetchBalance();
     },
   });
 
 
   //TODO Move this logic to auth
   const { data: existingWallet, refetch } = api.wallet.getByAddress.useQuery(
-    { address: address as Address },
+    { address: address! },
     {
       enabled: !!address,
       refetchOnWindowFocus: false,
@@ -68,7 +68,7 @@ const RaffleCard = () => {
   )
 
   const { mutate: createWallet } = api.wallet.create.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => void refetch(),
   });
 
   useEffect(() => {

@@ -18,7 +18,7 @@ import { api } from "@/lib/trpc";
 import { parseEther, formatEther } from "viem";
 import { RAFLLE_STATE, useRaffleState } from "@/hooks/useRaffleState";
 import { TxError } from '@/lib/contract/errorHandler';
-import { EntranceFee } from '../raffle-card/RaffleCard';
+import { type EntranceFee } from '../raffle-card/RaffleCard';
 
 const RAFFLE_PRICE = "0.01";
 
@@ -87,9 +87,9 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
                   },
                   {
                     onSuccess: () => {
-                      utils.wallet.getTop10Wagers.invalidate();
-                      utils.wagerHistory.getHistoryByUserId.invalidate();
-                      utils.wagerHistory.getCurrentRoundWallets.invalidate();
+                      void utils.wallet.getTop10Wagers.invalidate();
+                      void utils.wagerHistory.getHistoryByUserId.invalidate();
+                      void utils.wagerHistory.getCurrentRoundWallets.invalidate();
                     },
                   }
                 );
@@ -99,7 +99,7 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
         }
       };
   
-      updateData();
+      void updateData();
     }
   }, [
     isConfirmed,

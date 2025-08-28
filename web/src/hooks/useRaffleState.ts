@@ -64,7 +64,7 @@ export function useRaffleState() {
       if (player !== address) {
         notify('info', '🎲 New player entered the raffle!');
       }
-      handleRefetch();
+      void handleRefetch();
     },
   });
 
@@ -79,7 +79,7 @@ export function useRaffleState() {
       if (winner !== address) {
         notify('success', `🏆 Winner chosen! Congratulations to ${winner}!`);
       }
-      handleRefetch();
+      void handleRefetch();
     },
   });
 
@@ -89,7 +89,7 @@ export function useRaffleState() {
     eventName: 'RaffleStarted',
     onLogs() {
       notify('info', '🚀 New round started!');
-      handleRefetch();
+      void handleRefetch();
     },
   });
 
@@ -98,7 +98,7 @@ export function useRaffleState() {
     abi: singleEntryRaffle.abi,
     eventName: 'RequestRaffleWinner',
     onLogs() {
-      handleRefetch();
+      void handleRefetch();
     },
   });
 
@@ -132,7 +132,7 @@ export function useRaffleState() {
 
       // if time is up and there are players, try to sync immediately
       if (remaining === 0 && currentPlayers > 0) {
-        handleRefetch();
+        void handleRefetch();
       }
     };
 

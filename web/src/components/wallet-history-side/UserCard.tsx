@@ -25,7 +25,7 @@ export function UserCard() {
     })
 
     const formattedBalance = useMemo(() => {
-        if (!data || data?.decimals == null) return '0';
+        if (data?.decimals == null) return '0';
         return formatEther(data.value);
     }, [data]);
 
@@ -83,7 +83,7 @@ export function UserCard() {
                         if (session?.user) {
                           openAccountModal?.();
                         } else {
-                          signIn('google');
+                          await signIn('google');
                         }
                       }}
                     >

@@ -5,7 +5,7 @@ import { useReadContract, useWatchContractEvent } from 'wagmi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { formatTimeAgo } from '@/lib/date';
 import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
-import { WagerRecord } from '@/components/Leaderboard';
+import { type WagerRecord } from '@/components/Leaderboard';
 
 export default function LeaderboardTable({ players }: { players: WagerRecord[] }) {
     players = players.slice(3, 10);
@@ -22,7 +22,7 @@ export default function LeaderboardTable({ players }: { players: WagerRecord[] }
         eventName: 'RaffleEntered',
         onLogs(logs) {
             console.log('RaffleEntered - updating player count:', logs);
-            refetch();
+            void refetch();
         },
     });
 
@@ -33,7 +33,7 @@ export default function LeaderboardTable({ players }: { players: WagerRecord[] }
         eventName: 'WinnerPicked',
         onLogs(logs) {
             console.log('WinnerPicked - updating player count:', logs);
-            refetch();
+            void refetch();
         },
     });
     return (
@@ -61,9 +61,9 @@ export default function LeaderboardTable({ players }: { players: WagerRecord[] }
                             >
                                 <TableCell className="pl-6 py-2 rounded-l-lg">
                                     <div className="flex items-center gap-3">
-                                    <span className="text-slate-500 text-sm font-medium w-6 rounded-full bg-card-foreground/60 flex items-center justify-center">
-                                        {index + 4}
-                                    </span>
+                                        <span className="text-slate-500 text-sm font-medium w-6 rounded-full bg-card-foreground/60 flex items-center justify-center">
+                                            {index + 4}
+                                        </span>
                                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm">
                                             {player.user?.avatar}
                                         </div>
@@ -81,8 +81,8 @@ export default function LeaderboardTable({ players }: { players: WagerRecord[] }
                                             <div className="w-2 h-2 rounded-full bg-yellow-700"></div>
                                         </div>
                                         <span className="text-white font-medium">
-                                        {player.totalWager}
-                                    </span>
+                                            {player.totalWager}
+                                        </span>
                                     </div>
                                 </TableCell>
                             </TableRow>

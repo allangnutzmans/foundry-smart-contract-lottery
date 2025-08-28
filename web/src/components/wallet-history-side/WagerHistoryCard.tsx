@@ -1,4 +1,4 @@
-import { WagerHistoryItem } from './WagerHistory';
+import { type WagerHistoryItem } from './WagerHistory';
 
 interface WagerHistoryCardProps {
   wager: WagerHistoryItem;

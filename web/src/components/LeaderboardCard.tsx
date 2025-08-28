@@ -53,7 +53,7 @@ const LeaderboardCard = ({ rank, username, timeAgo, wager, avatarColors, avatarE
                   background:`linear-gradient(45deg, ${avatarColors?.[0] || "#a855f7"}, ${avatarColors?.[1] || "#ec4899"}, ${avatarColors?.[2] || "#3b82f6"})`
                 }}
               >
-                {avatarEmoji || (username ? username[0].toUpperCase() : '')}
+                {avatarEmoji ?? username?.[0]?.toUpperCase() ?? ''}
               </div>
             )
           }

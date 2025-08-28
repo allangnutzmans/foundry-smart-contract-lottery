@@ -48,7 +48,6 @@ export const walletRouter = createTRPCRouter({
       return [];
     }
 
-    // Agrupa as apostas do round atual por wallet
     const topWallets = await prisma.wagerHistory.groupBy({
       by: ['walletId'],
       where: {

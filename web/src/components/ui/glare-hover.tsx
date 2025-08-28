@@ -41,9 +41,9 @@ const GlareHover: React.FC<GlareHoverProps> = ({
     const b = parseInt(hex.slice(4, 6), 16);
     rgba = `rgba(${r}, ${g}, ${b}, ${glareOpacity})`;
   } else if (/^[\dA-Fa-f]{3}$/.test(hex)) {
-    const r = parseInt(hex[0] + hex[0], 16);
-    const g = parseInt(hex[1] + hex[1], 16);
-    const b = parseInt(hex[2] + hex[2], 16);
+    const r = parseInt((hex[0] ?? '0') + (hex[0] ?? '0'), 16);
+    const g = parseInt((hex[1] ?? '0') + (hex[1] ?? '0'), 16);
+    const b = parseInt((hex[2] ?? '0') + (hex[2] ?? '0'), 16);
     rgba = `rgba(${r}, ${g}, ${b}, ${glareOpacity})`;
   }
 

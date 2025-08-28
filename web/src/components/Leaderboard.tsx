@@ -32,7 +32,7 @@ const Leaderboard = () => {
         abi: singleEntryRaffle.abi,
         eventName: 'RaffleEntered',
         onLogs() {
-            refetch();
+            void refetch();
         },
     });
 
@@ -42,7 +42,7 @@ const Leaderboard = () => {
         abi: singleEntryRaffle.abi,
         eventName: 'WinnerPicked',
         onLogs() {
-            refetch();
+            void refetch();
         },
     });
     
@@ -180,7 +180,7 @@ const Leaderboard = () => {
               username={player.user?.name || player.address || ''}
               timeAgo={player.timeLastWager.toISOString()}
               wager={player.totalWager.toString()}
-              avatarEmoji={player.user?.avatar || (player.user?.name ? player.user.name[0].toUpperCase() : '')}
+              avatarEmoji={getAvatarEmoji(player)}
               avatarImage={player.user?.image || undefined}
               avatarColors={defaultAvatarColors}
             />
@@ -192,5 +192,13 @@ const Leaderboard = () => {
     </div>
   );
 };
+
+// GETTERS
+function getAvatarEmoji(player: WagerRecord): string {
+    return player.user?.avatar 
+        ?? player.user?.name?.[0]?.toUpperCase() 
+        ?? '';
+}
+
 
 export default Leaderboard; 

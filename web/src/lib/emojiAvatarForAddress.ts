@@ -78,5 +78,5 @@ export function emojiAvatarForAddress(address: string) {
     const avatarIndex = Math.abs(
         hashCode(resolvedAddress.toLowerCase()) % avatars.length,
     );
-    return avatars[avatarIndex ?? 0];
+    return avatars[avatarIndex] ?? avatars[0];
 }

@@ -1,5 +1,5 @@
 import { getCssVar } from '@/lib/helpers';
-import { Theme } from '@rainbow-me/rainbowkit';
+import { type Theme } from '@rainbow-me/rainbowkit';
 
 export function getRainbowKitTheme(): Theme {
     return {

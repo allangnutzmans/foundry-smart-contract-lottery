@@ -2,7 +2,7 @@ import { Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type UseBalanceReturnType } from 'wagmi'
 import { formatEther } from 'viem';
-import { EntranceFee } from '@/components/raffle-card/RaffleCard';
+import { type EntranceFee } from '@/components/raffle-card/RaffleCard';
 import { useRouter } from 'next/navigation';
 import { EnterRaffleDD } from '@/components/enter-raffle/EnterRaffleDD';
 import CountUp from '@/components/ui/counter-up';

@@ -2,7 +2,7 @@
 
 import { http, createStorage, cookieStorage } from 'wagmi'
 import { sepolia, bscTestnet, blastSepolia } from 'wagmi/chains'
-import { Chain, getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { type Chain, getDefaultConfig } from '@rainbow-me/rainbowkit'
 
 const projectId = '6a6bc9ccada2df8d6c64e6bc29a2abbe';
 

@@ -2,7 +2,7 @@
 
 import {Coins} from "lucide-react";
 import {Button} from "@/components/ui/button";
-import { EntranceFee } from './RaffleCard';
+import { type EntranceFee } from './RaffleCard';
 import { useReadContract, type UseBalanceReturnType } from 'wagmi'
 import { formatEther } from 'viem';
 

@@ -5,10 +5,10 @@ import React from 'react';
 import {Coins} from "lucide-react";
 import { type UseBalanceReturnType } from 'wagmi'
 import { formatEther } from 'viem';
-import { TimeObject } from '@/hooks/useRaffleState';
+import { type TimeObject } from '@/hooks/useRaffleState';
 import CountUp from '@/components/ui/counter-up';
 import { EnterRaffleDD } from '../enter-raffle/EnterRaffleDD';
-import { EntranceFee } from '@/components/raffle-card/RaffleCard';
+import { type EntranceFee } from '@/components/raffle-card/RaffleCard';
 
 const RaffleCardOngoing = ({
   timeLeft,
