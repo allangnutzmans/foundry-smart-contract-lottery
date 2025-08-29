@@ -33,6 +33,12 @@ const docs: DocCategory[] = [
         title: "Getting Started",
         sections: [
           {
+            id: "network-note",
+            title: "Note on Testnet",
+            content:
+              "All transactions in this guide use **Sepolia ETH**, a testnet currency. I refer to it as 'ETH' for simplicity, but no real funds are used.",
+          },
+          {
             id: "what-is-raffle",
             title: "What is the Raffle?",
             content:
