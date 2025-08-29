@@ -56,6 +56,13 @@ export const WagerHistory = () => {
   return (
     <div className="mt-5">
       <h3 className="text-sm font-semibold mb-3">Your Wager History</h3>
+      {!isLoading && (
+        <div className="absolute min-w-[100px] inset-0 flex items-center justify-center z-50 pointer-events-none px-6 ms-8">
+          <span className="text-muted-foreground font-semibold text-center p-4 border rounded-lg bg-card/70">
+            No wagers yet. Join the raffle to get started! 🎯
+          </span>
+        </div>
+      )}
       {/* TODO: Fix - In small screens scroll overflow the box and becomes hidden */}
       <ScrollArea className="h-175">
         {loadSkeleton ? (
