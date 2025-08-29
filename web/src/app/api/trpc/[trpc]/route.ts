@@ -10,5 +10,9 @@ const handler = (req: Request) => {
     createContext: createTRPCContext,
   })
 }
+export const config = {
+  regions: ['gru1'], // São Paulo
+};
+
 
 export { handler as GET, handler as POST }
