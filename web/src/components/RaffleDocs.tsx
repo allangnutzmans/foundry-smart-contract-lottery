@@ -176,16 +176,16 @@ export default function RaffleDocs() {
 
   return (
     <div className="min-h-screen w-full">
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 py-6 md:grid-cols-[1fr_16rem] md:px-6 lg:grid-cols-[1fr_18rem]">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 py-2 md:grid-cols-[1fr_16rem] md:px-4 lg:grid-cols-[1fr_18rem]">
         {/* Main content: render ALL docs with anchors */}
         <main className="min-w-0">
           <article className="prose prose-invert max-w-none">
             {docs.map((category) => (
-              <section key={category.id} id={category.id} className="scroll-mt-24">
+              <section key={category.id} id={category.id} className="mt-10">
                 <h1 className="text-3xl font-bold tracking-tight">{category.title}</h1>
                 <Separator className="my-4" />
                 {category.topics.map((topic) => (
-                  <section key={topic.id} id={topic.id} className="scroll-mt-24">
+                  <section key={topic.id} id={topic.id} className="mt-4">
                     <h2 className="mt-8 text-2xl font-semibold">{topic.title}</h2>
                     {topic.sections.map((section) => (
                       <section key={section.id} id={section.id} className="scroll-mt-24">
