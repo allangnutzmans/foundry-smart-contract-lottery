@@ -18,7 +18,7 @@ import { api } from "@/lib/trpc";
 import { parseEther, formatEther } from "viem";
 import { RAFLLE_STATE, useRaffleState } from "@/hooks/useRaffleState";
 import { TxError } from '@/lib/contract/errorHandler';
-import { type EntranceFee } from '../raffle-card/RaffleCard';
+import { type EntranceFee } from '../raffle-card/RaffleCardRender';
 
 const RAFFLE_PRICE = "0.01";
 
@@ -38,7 +38,7 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
   const utils = api.useUtils();
   const createWagerHistory = api.wagerHistory.create.useMutation();
   const upsertRaffleRound = api.wagerHistory.upsertRaffleRound.useMutation();
-  
+
   const getWallet = api.wallet.getByAddress.useQuery(
     { address: address ?? "" },
     { enabled: Boolean(address) }
@@ -69,7 +69,7 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
         const prizeAmount = freshBalance?.value
           ? parseFloat(formatEther(freshBalance.value))
           : 0;
-  
+
         if (getWallet.data && roundId > 0) {
           upsertRaffleRound.mutate(
             {
@@ -83,7 +83,7 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
                     walletId: getWallet.data!.id,
                     wagerAmount: parseFloat(wagerAmount),
                     raffleRoundId: round.id,
-                    
+
                   },
                   {
                     onSuccess: () => {
@@ -98,7 +98,7 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
           );
         }
       };
-  
+
       void updateData();
     }
   }, [
@@ -112,22 +112,22 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
     utils,
     wagerAmount,
   ]);
-  
+
 
   useEffect(() => {
     if (txError || (isError && error)) {
-      toast.error('Transaction failed', { description: 'Could not enter the raffle, maybe you already participated in this round?'}  )
+      toast.error('Transaction failed', { description: 'Could not enter the raffle, maybe you already participated in this round?' })
     }
   }, [txError, isError, error]);
-  
+
   const handleEnterRaffle = useCallback(() => {
     if (!address) return;
 
     if (Number(wagerAmount) < Number(formatEther(entranceFee?.value ?? 0n))) {
-        toast.error(TxError.Raffle__SendMoreToEnterRaffle);
-        return;
-      }
-  
+      toast.error(TxError.Raffle__SendMoreToEnterRaffle);
+      return;
+    }
+
     writeContract({
       address: singleEntryRaffle.address,
       abi: singleEntryRaffle.abi,
@@ -152,8 +152,8 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
 
   const openDialog = () => {
     if (!address) {
-        toast.error("Please connect your wallet to enter the raffle");
-        return;
+      toast.error("Please connect your wallet to enter the raffle");
+      return;
     }
     setIsOpen(true);
   };
@@ -172,37 +172,37 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
+          <DialogHeader>
             <DialogTitle>Enter Raffle</DialogTitle>
             <DialogDescription>
-                Are you sure you want to enter the raffle? The entry fee is {entranceFee?.value ? formatEther(entranceFee.value) : RAFFLE_PRICE} {entranceFee?.symbol}.
+              Are you sure you want to enter the raffle? The entry fee is {entranceFee?.value ? formatEther(entranceFee.value) : RAFFLE_PRICE} {entranceFee?.symbol}.
             </DialogDescription>
             <div className="grid gap-4 py-4">
-                <Input
-                    id="wager"
-                    type="number"
-                    step="0.01"
-                    value={wagerAmount}
-                    onChange={(e) => setWagerAmount(e.target.value)}
-                    className="col-span-3"
-                />
+              <Input
+                id="wager"
+                type="number"
+                step="0.01"
+                value={wagerAmount}
+                onChange={(e) => setWagerAmount(e.target.value)}
+                className="col-span-3"
+              />
             </div>
-            </DialogHeader>
+          </DialogHeader>
 
-            <DialogFooter>
+          <DialogFooter>
             <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Cancel</Button>
             </DialogClose>
 
             <Button
-                onClick={handleEnterRaffle}
-                disabled={isPending || isConfirming}
+              onClick={handleEnterRaffle}
+              disabled={isPending || isConfirming}
             >
-                {isPending || isConfirming ? "Confirming..." : "Enter"}
+              {isPending || isConfirming ? "Confirming..." : "Enter"}
             </Button>
-            </DialogFooter>
+          </DialogFooter>
         </DialogContent>
-    </Dialog>
+      </Dialog>
     </>
   );
 }
