@@ -18,7 +18,7 @@ import { api } from '@/lib/trpc';
 import { parseEther, formatEther } from 'viem';
 import { RAFLLE_STATE, useRaffleState } from '@/hooks/useRaffleState';
 import { TxError } from '@/lib/contract/errorHandler';
-import { type EntranceFee } from '../raffle-card/RaffleCardRender';
+import { EntranceFee } from '../raffle-card/RaffleCardBase';
 
 const RAFFLE_PRICE = '0.01';
 

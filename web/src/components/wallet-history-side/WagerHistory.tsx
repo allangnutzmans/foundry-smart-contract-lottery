@@ -26,7 +26,7 @@ export interface WagerHistoryItem {
   };
 }
 
-export const WagerHistory = ({ isSmall }: { isSmall: boolean }) => {
+export const WagerHistory = ({ isSmall }: { isSmall?: boolean }) => {
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
