@@ -46,7 +46,6 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
 
   const upsertRaffleRound = api.wagerHistory.upsertRaffleRound.useMutation({
     onSuccess: (round) => {
-      console.log('✅ updateData4', round);
       if (getWallet.data) {
         createWagerHistory.mutate({
           walletId: getWallet.data.id,
