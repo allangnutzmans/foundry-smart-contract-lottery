@@ -127,25 +127,22 @@ const RaffleCardRender = () => {
       {renderRaffleContent()}
       {/* Winner Dialog */}
       <Dialog open={showWinnerDialog} onOpenChange={handleDialogClose}>
-        <DialogContent className="p-0 bg-[#6f326a]">
-          <GlareHover width="100%" height="auto" playOnce={true}>
-            <div className="p-6 bg-[#6f326a]">
-              <DialogHeader>
-                <DialogTitle className="text-yellow-400">
-                  Congratulations! You are the lucky winner!
-                </DialogTitle>
-                <DialogDescription className="text-white">
-                  Check your wallet and see your winnings!
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col items-center">
-                <p className="text-white"></p>
-                <picture>
-                  <img src="/jackpot.gif" alt="Jackpot Trophy" className="mt-4" />
-                </picture>
-              </div>
+        <DialogContent className="p-0 bg-[#6f326a] rounded-2xl overflow-hidden">
+          <div className="p-6 bg-[#6f326a] rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-yellow-400">
+                Congratulations! You are the lucky winner!
+              </DialogTitle>
+              <DialogDescription className="text-white">
+                Check your wallet and see your winnings!
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center">
+              <picture>
+                <img src="/jackpot.gif" alt="Jackpot Trophy" className="mt-4" />
+              </picture>
             </div>
-          </GlareHover>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
