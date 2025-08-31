@@ -98,11 +98,7 @@ const RaffleCardRender = () => {
   };
 
   const renderRaffleContent = () => {
-    if (
-      existingWallet === undefined ||
-      balance === undefined ||
-      raffleState === undefined
-    ) {
+    if (balance === undefined || raffleState === undefined) {
       return <RaffleCardSkeleton />;
     }
 
@@ -111,9 +107,7 @@ const RaffleCardRender = () => {
     }
 
     if (raffleState === RAFLLE_STATE.CALCULATING || winnerAddress) {
-      return (
-        <RaffleCardCalculating balance={balance} entranceFee={entranceFee} />
-      );
+      return <RaffleCardCalculating balance={balance} entranceFee={entranceFee} />;
     }
 
     if (raffleState === RAFLLE_STATE.OPEN) {
