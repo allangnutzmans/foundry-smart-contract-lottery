@@ -80,6 +80,8 @@ export function useRaffleState() {
       setWinnerAddress(winner);
       if (winner !== address) {
         notify('success', `🏆 Winner chosen! Congratulations to ${winner}!`);
+      } else {
+        notify('success', `CONGRATULATIONS ${winner}, is the winner! 🎉🏆`);
       }
       void handleRefetch();
     },
