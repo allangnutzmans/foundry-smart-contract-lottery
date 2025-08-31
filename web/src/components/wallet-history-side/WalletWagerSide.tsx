@@ -29,7 +29,7 @@ export default function WalletWagerSide() {
 
         {/* Drawer */}
         <Drawer open={open} onOpenChange={setOpen} direction="right">
-          <DrawerContent className="w-[300px] max-w-[100vw] h-full px-3 rounded-l-xl shadow-lg">
+          <DrawerContent className="w-[300px] max-w-[100vw] h-full px-3 pt-3 rounded-l-xl shadow-lg">
             <UserCard />
             <WagerHistory isSmall={isSmall} />
           </DrawerContent>
