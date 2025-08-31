@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WagerHistoryCardSkeleton } from '@/components/wallet-history-side/WagerHistoryCardSkeleton';
 import { WagerHistoryCard } from './WagerHistoryCard';
+import { cn } from '@/lib/utils';
 
 export interface WagerHistoryItem {
   id: string;
@@ -25,7 +26,7 @@ export interface WagerHistoryItem {
   };
 }
 
-export const WagerHistory = () => {
+export const WagerHistory = ({ isSmall }: { isSmall: boolean }) => {
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
@@ -54,26 +55,29 @@ export const WagerHistory = () => {
   }
   const loadSkeleton = isLoading || isError || !wagerHistory || wagerHistory.length === 0;
   return (
-    <div className="mt-5">
+    <div className="mt-5 flex flex-col h-full">
       <h3 className="text-sm font-semibold mb-3">Your Wager History</h3>
-      {!isLoading && (
-        <div className="absolute min-w-[100px] inset-0 flex items-center justify-center z-50 pointer-events-none px-6 ms-8">
-          <span className="text-muted-foreground font-semibold text-center p-4 border rounded-lg bg-card/70">
-            No wagers yet. Join the raffle to get started! 🎯
-          </span>
-        </div>
-      )}
-      {/* TODO: Fix - In small screens scroll overflow the box and becomes hidden */}
-      <ScrollArea className="h-175">
+      <ScrollArea className="h-[calc(100vh-240px)] overflow-y-auto">
         {loadSkeleton ? (
           Array.from({ length: 7 }).map((_, index) => (
             <WagerHistoryCardSkeleton loading={isLoading} key={index} />
           ))
-        ) : (
-          <div className="grid gap-3">
+        ) : wagerHistory && wagerHistory.length > 0 ? (
+          <div className="grid gap-3 p-2">
             {wagerHistory.map((wager: WagerHistoryItem) => (
               <WagerHistoryCard key={wager.id} wager={wager} />
             ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full p-4">
+            <span
+              className={cn(
+                'text-muted-foreground font-semibold text-center border rounded-lg bg-card/70',
+                !isSmall ? 'mx-8' : 'mx-2'
+              )}
+            >
+              No wagers yet. Join the raffle to get started! 🎯
+            </span>
           </div>
         )}
       </ScrollArea>
