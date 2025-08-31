@@ -18,11 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import GlareHover from '../ui/glare-hover';
 import { RaffleCardSkeleton } from './RaffleCardSkeleton';
-
-export type EntranceFee = {
-  value?: bigint;
-  symbol: string;
-};
+import { EntranceFee } from './RaffleCardBase';
 
 const RaffleCardRender = () => {
   const { address, chain, isConnected } = useAccount();

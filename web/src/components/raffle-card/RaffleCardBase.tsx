@@ -6,9 +6,13 @@ import CountUp from '@/components/ui/counter-up';
 import { type UseBalanceReturnType } from 'wagmi';
 import { formatEther } from 'viem';
 
+export type EntranceFee = {
+  value?: bigint;
+  symbol: string;
+};
 export interface BaseRaffleCardProps {
   balance: UseBalanceReturnType['data'];
-  entranceFee?: { value: bigint; symbol: string };
+  entranceFee?: EntranceFee;
   roundId?: number;
   button?: ReactNode;
   rightSection?: ReactNode;

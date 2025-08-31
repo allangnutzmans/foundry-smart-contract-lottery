@@ -1,7 +1,6 @@
 'use client';
 
-import { RaffleCardBase } from './RaffleCardBase';
-import { type EntranceFee } from './RaffleCard';
+import { RaffleCardBase, type EntranceFee } from './RaffleCardBase';
 import { EnterRaffleDD } from '../enter-raffle/EnterRaffleDD';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';

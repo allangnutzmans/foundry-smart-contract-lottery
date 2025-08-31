@@ -1,7 +1,6 @@
 'use client';
 
-import { RaffleCardBase } from './RaffleCardBase';
-import { type EntranceFee } from './RaffleCard';
+import { RaffleCardBase, type EntranceFee } from './RaffleCardBase';
 import { Button } from '@/components/ui/button';
 import { type UseBalanceReturnType } from 'wagmi';
 import GlareHover from '../ui/glare-hover';
@@ -33,13 +32,23 @@ export const RaffleCardCalculating = ({
   );
 
   const rightSection = (
-    <div className="flex flex-col items-center space-y-4 text-purple-200/50">
-      {winnerAddress ? `WINNER: ${winnerAddress}` : 'PICKING WINNER...'}
-      {numberOfPlayers && (
-        <div className="text-purple-200/30 text-sm">{numberOfPlayers} players</div>
-      )}
+    <div className="flex flex-col items-center space-y-2 text-purple-200/50">
+      {winnerAddress
+        ? `WINNER: ${winnerAddress}`
+        : <>
+          <span>PICKING WINNER...</span>
+          <span className="text-sm text-purple-200/30 text-center">
+            This may take a moment, as the winner is chosen via Chainlink VRF
+          </span>
+        </>
+      }
+      {numberOfPlayers ? (
+        <div className="text-purple-200/30 text-sm">{numberOfPlayers as string} players</div>
+      ) :
+        <div className="text-purple-200/30 text-sm">Loading players...</div>}
     </div>
   );
+
 
   return (
     <GlareHover

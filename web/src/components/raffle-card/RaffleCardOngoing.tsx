@@ -5,7 +5,7 @@ import React from 'react';
 import { type UseBalanceReturnType } from 'wagmi';
 import { type TimeObject } from '@/hooks/useRaffleState';
 import { EnterRaffleDD } from '../enter-raffle/EnterRaffleDD';
-import { type EntranceFee } from '@/components/raffle-card/RaffleCard';
+import { type EntranceFee } from '@/components/raffle-card/RaffleCardBase';
 import ContdownTimer from '../countdow-timer/CountdownTimer';
 import { RaffleCardBase } from './RaffleCardBase';
 
