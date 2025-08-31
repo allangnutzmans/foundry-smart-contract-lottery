@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogClose,
@@ -10,17 +10,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { singleEntryRaffle } from "@/lib/contract/singleEntryRaffle";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useBalance } from "wagmi";
-import { toast } from "sonner";
-import { api } from "@/lib/trpc";
-import { parseEther, formatEther } from "viem";
-import { RAFLLE_STATE, useRaffleState } from "@/hooks/useRaffleState";
+} from '@/components/ui/dialog';
+import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi';
+import { toast } from 'sonner';
+import { api } from '@/lib/trpc';
+import { parseEther, formatEther } from 'viem';
+import { RAFLLE_STATE, useRaffleState } from '@/hooks/useRaffleState';
 import { TxError } from '@/lib/contract/errorHandler';
 import { type EntranceFee } from '../raffle-card/RaffleCardRender';
 
-const RAFFLE_PRICE = "0.01";
+const RAFFLE_PRICE = '0.01';
 
 export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,25 +36,55 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
   });
 
   const utils = api.useUtils();
-  const createWagerHistory = api.wagerHistory.create.useMutation();
-  const upsertRaffleRound = api.wagerHistory.upsertRaffleRound.useMutation();
+  const createWagerHistory = api.wagerHistory.create.useMutation({
+    onSuccess: () => {
+      void utils.wallet.getTop10Wagers.invalidate();
+      void utils.wagerHistory.getHistoryByUserId.invalidate();
+      void utils.wagerHistory.getCurrentRoundWallets.invalidate();
+    },
+  });
+
+  const upsertRaffleRound = api.wagerHistory.upsertRaffleRound.useMutation({
+    onSuccess: (round) => {
+      console.log('✅ updateData4', round);
+      if (getWallet.data) {
+        createWagerHistory.mutate({
+          walletId: getWallet.data.id,
+          wagerAmount: parseFloat(wagerAmount),
+          raffleRoundId: round.id,
+        });
+      }
+    },
+  });
 
   const getWallet = api.wallet.getByAddress.useQuery(
-    { address: address ?? "" },
+    { address: address ?? '' },
     { enabled: Boolean(address) }
   );
 
   const { data: txHash, isPending, writeContract, error: txError } = useWriteContract();
 
   // Confirmation Receipt
-  const { isLoading: isConfirming, isSuccess: isConfirmed, isError, error } = useWaitForTransactionReceipt({
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError,
+    error,
+  } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
   // Add OK mesage to the toast
   useEffect(() => {
     if (isConfirming) {
-      toast.info("Transaction sent! Waiting for confirmation...");
+      toast.info('Transaction sent! Waiting for confirmation...');
+      setIsOpen(false);
+    }
+  }, [isConfirming]);
+
+  useEffect(() => {
+    if (isConfirming) {
+      toast.info('Transaction sent! Waiting for confirmation...');
       setIsOpen(false);
     }
   }, [isConfirming]);
@@ -64,38 +94,13 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
       processedTxRef.current = txHash;
       toast.success('You have successfully entered the raffle!');
       const updateData = async () => {
-        // refetch to correctly create the wager history
+        console.log('updateData');
         const { data: freshBalance } = await refetchContractBalance();
-        const prizeAmount = freshBalance?.value
-          ? parseFloat(formatEther(freshBalance.value))
-          : 0;
-
+        console.log('updateData2', freshBalance);
+        const prizeAmount = freshBalance?.value ? parseFloat(formatEther(freshBalance.value)) : 0;
+        console.log('updateData3', prizeAmount);
         if (getWallet.data && roundId > 0) {
-          upsertRaffleRound.mutate(
-            {
-              roundId,
-              prizeAmount,
-            },
-            {
-              onSuccess: (round) => {
-                createWagerHistory.mutate(
-                  {
-                    walletId: getWallet.data!.id,
-                    wagerAmount: parseFloat(wagerAmount),
-                    raffleRoundId: round.id,
-
-                  },
-                  {
-                    onSuccess: () => {
-                      void utils.wallet.getTop10Wagers.invalidate();
-                      void utils.wagerHistory.getHistoryByUserId.invalidate();
-                      void utils.wagerHistory.getCurrentRoundWallets.invalidate();
-                    },
-                  }
-                );
-              },
-            }
-          );
+          upsertRaffleRound.mutate({ roundId, prizeAmount });
         }
       };
 
@@ -107,16 +112,15 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
     getWallet.data,
     roundId,
     refetchContractBalance,
-    createWagerHistory,
     upsertRaffleRound,
-    utils,
     wagerAmount,
   ]);
 
-
   useEffect(() => {
     if (txError || (isError && error)) {
-      toast.error('Transaction failed', { description: 'Could not enter the raffle, maybe you already participated in this round?' })
+      toast.error('Transaction failed', {
+        description: 'Could not enter the raffle, maybe you already participated in this round?',
+      });
     }
   }, [txError, isError, error]);
 
@@ -152,7 +156,7 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
 
   const openDialog = () => {
     if (!address) {
-      toast.error("Please connect your wallet to enter the raffle");
+      toast.error('Please connect your wallet to enter the raffle');
       return;
     }
     setIsOpen(true);
@@ -175,7 +179,9 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
           <DialogHeader>
             <DialogTitle>Enter Raffle</DialogTitle>
             <DialogDescription>
-              Are you sure you want to enter the raffle? The entry fee is {entranceFee?.value ? formatEther(entranceFee.value) : RAFFLE_PRICE} {entranceFee?.symbol}.
+              Are you sure you want to enter the raffle? The entry fee is{' '}
+              {entranceFee?.value ? formatEther(entranceFee.value) : RAFFLE_PRICE}{' '}
+              {entranceFee?.symbol}.
             </DialogDescription>
             <div className="grid gap-4 py-4">
               <Input
@@ -194,11 +200,8 @@ export function EnterRaffleDD({ entranceFee }: { entranceFee?: EntranceFee }) {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
 
-            <Button
-              onClick={handleEnterRaffle}
-              disabled={isPending || isConfirming}
-            >
-              {isPending || isConfirming ? "Confirming..." : "Enter"}
+            <Button onClick={handleEnterRaffle} disabled={isPending || isConfirming}>
+              {isPending || isConfirming ? 'Confirming...' : 'Enter'}
             </Button>
           </DialogFooter>
         </DialogContent>
