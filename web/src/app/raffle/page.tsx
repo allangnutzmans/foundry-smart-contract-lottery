@@ -1,3 +1,5 @@
+'use client';
+
 import RaffleCardRender from "@/components/raffle-card/RaffleCardRender";
 import Leaderboard from "@/components/Leaderboard";
 

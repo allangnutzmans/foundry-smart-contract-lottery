@@ -7,7 +7,7 @@ export default function Home() {
     <div className="flex h-[calc(100vh-2rem)]">
       <div className="relative w-full  rounded-xl p-px shadow-2xl overflow-hidden">
         <div className="card-border-animated"></div>
-        <div className="relative z-10 h-full w-full rounded-[15px] bg-card p-4 overflow-auto">
+        <div className="relative z-10 h-full w-full rounded-[15px] bg-card p-4 overflow-y-auto">
           <RaffleCardRender />
           <div className="mt-5">
             <Leaderboard />
