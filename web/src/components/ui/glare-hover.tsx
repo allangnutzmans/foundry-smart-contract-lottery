@@ -100,9 +100,8 @@ const GlareHover: React.FC<GlareHoverProps> = ({
 
   return (
     <div
-      className={`relative grid place-items-center overflow-hidden ${rounded ? `rounded-${rounded}` : ""} ${
-        playOnHover ? "cursor-pointer" : ""
-      } ${className}`}
+      className={`relative overflow-hidden ${rounded ? `rounded-${rounded}` : ""} ${playOnHover ? "cursor-pointer" : ""
+        } ${className}`}
       style={{
         width,
         height,
@@ -112,8 +111,9 @@ const GlareHover: React.FC<GlareHoverProps> = ({
       onMouseEnter={playOnHover ? animateIn : undefined}
       onMouseLeave={playOnHover ? animateOut : undefined}
     >
-      <div ref={overlayRef} style={overlayStyle} className="overflow-hidden w-full h-full" />
-      {children}
+      <div ref={overlayRef} style={overlayStyle} className="overflow-hidden w-full h-full z-[999]">
+        {children}
+      </div>
     </div>
   );
 };
