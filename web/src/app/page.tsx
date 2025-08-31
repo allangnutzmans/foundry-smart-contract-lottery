@@ -1,5 +1,5 @@
-import RaffleCard from "@/components/raffle-card/RaffleCard";
-import Leaderboard from "@/components/Leaderboard";
+import RaffleCardRender from '@/components/raffle-card/RaffleCardRender';
+import Leaderboard from '@/components/Leaderboard';
 import WalletWagerSide from '@/components/wallet-history-side/WalletWagerSide';
 
 export default function Home() {
@@ -8,7 +8,7 @@ export default function Home() {
       <div className="relative w-full  rounded-xl p-px shadow-2xl overflow-hidden">
         <div className="card-border-animated"></div>
         <div className="relative z-10 h-full w-full rounded-[15px] bg-card p-4 overflow-auto">
-          <RaffleCard />
+          <RaffleCardRender />
           <div className="mt-5">
             <Leaderboard />
           </div>
