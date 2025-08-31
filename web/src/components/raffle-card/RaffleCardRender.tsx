@@ -112,7 +112,7 @@ const RaffleCardRender = () => {
 
     if (raffleState === RAFLLE_STATE.CALCULATING || winnerAddress) {
       return (
-        <RaffleCardCalculating balance={balance} entranceFee={entranceFee} roundId={roundId} />
+        <RaffleCardCalculating balance={balance} entranceFee={entranceFee} />
       );
     }
 
