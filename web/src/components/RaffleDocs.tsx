@@ -2,6 +2,7 @@
 
 import React, { JSX, useEffect } from 'react';
 import { Separator } from "@/components/ui/separator";
+import { singleEntryRaffle } from '@/lib/contract/singleEntryRaffle';
 
 // Data model
 export type DocSection = {
@@ -235,8 +236,16 @@ const docs: DocCategory[] = [
           id: "etherscan-verify",
           title: "Where to verify the contract",
           content: (
-            <>
-              View on <a href="https://sepolia.etherscan.io/address/0x0000000000000000000000000000000000000000" target="_blank" className="underline text-blue-500 hover:text-blue-700">Etherscan</a> (placeholder). Replace with the correct address after deployment.
+              <>
+              View on
+              <a
+                href={`https://sepolia.etherscan.io/address/${singleEntryRaffle.address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-500 hover:text-blue-700"
+              >
+                Etherscan
+              </a>
             </>
           ),
         },
